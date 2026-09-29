@@ -6,7 +6,7 @@ Build an AI-powered RAG knowledge base application where users upload documents,
 
 ## Phases
 
-- [ ] **Phase 1: Foundation & Security** - JWT auth, CORS, API structure
+- [x] **Phase 1: Foundation & Security** - JWT auth, CORS, API structure
 - [ ] **Phase 2: Document Ingestion** - Upload, parsing, chunking, embedding, Chroma indexing
 - [ ] **Phase 3: Chat/QA** - RAG retrieval, context injection, LLM response
 - [ ] **Phase 4: Knowledge Base Management** - KB CRUD, document-KB association
@@ -27,9 +27,9 @@ Build an AI-powered RAG knowledge base application where users upload documents,
   4. User can log out and token is invalidated
   5. System rejects requests with expired or invalid tokens
 **Plans:** 3 plans
-- [ ] 01-01-PLAN.md — Core Auth tracer: Spring Boot project + User entity + Register + Login + JWT filter
-- [ ] 01-02-PLAN.md — Refresh token: backend refresh endpoint + frontend Axios interceptor with auto-refresh
-- [ ] 01-03-PLAN.md — Logout + error handling: client-side clear + 401 redirect + global error toasts
+- [x] 01-01-PLAN.md — Core Auth tracer: Spring Boot project + User entity + Register + Login + JWT filter
+- [x] 01-02-PLAN.md — Refresh token: backend refresh endpoint + frontend Axios interceptor with auto-refresh
+- [x] 01-03-PLAN.md — Logout + error handling: client-side clear + 401 redirect + global error toasts
 
 ### Phase 2: Document Ingestion
 **Goal**: Users can upload documents that are parsed, chunked, embedded, and stored in Chroma
@@ -100,7 +100,7 @@ Build an AI-powered RAG knowledge base application where users upload documents,
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Security | 0/3 | Not started | - |
+| 1. Foundation & Security | 3/3 | Complete | 2026-09-29 |
 | 2. Document Ingestion | 0/? | Not started | - |
 | 3. Chat/QA | 0/? | Not started | - |
 | 4. Knowledge Base Management | 0/? | Not started | - |
