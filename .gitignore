@@ -1,0 +1,28 @@
+# Java
+backend/target/
+*.class
+*.jar
+*.war
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+uni-app-demo/node_modules/
+uni-app-demo/unpackage/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Maven wrapper
+backend/mvnw
+backend/mvnw.cmd
+backend/.mvn/
