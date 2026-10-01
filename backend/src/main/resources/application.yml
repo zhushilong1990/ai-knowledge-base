@@ -1,13 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:aikb;DB_CLOSE_DELAY=-1;MODE=MySQL;INIT=RUNSCRIPT FROM 'classpath:schema.sql'
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: jdbc:mysql://123.207.69.23:3306/aikb?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: xwy123
   sql:
     init:
       mode: always
@@ -32,7 +28,7 @@ server:
   port: 8080
 
 siliconflow:
-  api-key: ${SILICON_FLOW_API_KEY:}
+  api-key: sk-fpxwizvigvcqatsnpnysoiqcfuzggwcetyayhaqikwmqtkkn
   base-url: https://api.siliconflow.cn/v1
 
 chroma:
