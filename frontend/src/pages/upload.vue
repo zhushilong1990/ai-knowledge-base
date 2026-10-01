@@ -3,19 +3,23 @@
     <el-card class="upload-card">
       <template #header>
         <div class="card-header">
-          <span>Upload Document</span>
+          <span>上传文档</span>
         </div>
       </template>
 
       <el-form label-width="120px">
-        <el-form-item label="Knowledge Base">
-          <el-select v-model="knowledgeBaseId" placeholder="Select knowledge base">
-            <el-option label="Knowledge Base 1" :value="1" />
-            <!-- Future: load from API -->
+        <el-form-item label="知识库">
+          <el-select v-model="knowledgeBaseId" placeholder="请选择知识库">
+            <el-option
+              v-for="kb in kbStore.knowledgeBases"
+              :key="kb.id"
+              :label="kb.name"
+              :value="kb.id"
+            />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="Select File">
+        <el-form-item label="选择文件">
           <el-upload
             ref="uploadRef"
             class="upload-area"
@@ -29,11 +33,11 @@
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
             <div class="el-upload__text">
-              Drop file here or <em>click to upload</em>
+              将文件拖拽到此处，或 <em>点击上传</em>
             </div>
             <template #tip>
               <div class="el-upload__tip">
-                PDF, DOCX, TXT files only. Max size: 10MB.
+                支持 PDF、DOCX、TXT 格式，最大 10MB
               </div>
             </template>
           </el-upload>
@@ -61,13 +65,13 @@
             @click="handleUpload"
             style="width: 100%"
           >
-            {{ documentsStore.isUploading ? 'Uploading...' : 'Upload Document' }}
+            {{ documentsStore.isUploading ? '上传中...' : '上传文档' }}
           </el-button>
         </el-form-item>
 
         <el-form-item v-if="documentsStore.lastUploadResult">
           <el-alert
-            :title="`Upload complete: ${documentsStore.lastUploadResult.chunkCount} chunks indexed`"
+            :title="`上传成功：已索引 ${documentsStore.lastUploadResult.chunkCount} 个文本块`"
             type="success"
             :closable="true"
             @close="documentsStore.clearLastResult()"
@@ -79,20 +83,26 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { useDocumentsStore } from '../stores/documents.js'
+import { useKnowledgeBaseStore } from '../stores/knowledgeBase.js'
 
 const uploadRef = ref(null)
-const knowledgeBaseId = ref(1)
+const knowledgeBaseId = ref(null)
 const selectedFile = ref(null)
 const fileList = ref([])
 
 const documentsStore = useDocumentsStore()
+const kbStore = useKnowledgeBaseStore()
 
 const canUpload = computed(() => {
   return selectedFile.value && knowledgeBaseId.value && !documentsStore.isUploading
+})
+
+onMounted(() => {
+  kbStore.loadKnowledgeBases()
 })
 
 function handleFileChange(file, files) {
@@ -107,22 +117,21 @@ function handleFileRemove() {
 
 async function handleUpload() {
   if (!selectedFile.value) {
-    ElMessage.warning('Please select a file first')
+    ElMessage.warning('请先选择文件')
     return
   }
   if (!knowledgeBaseId.value) {
-    ElMessage.warning('Please select a knowledge base')
+    ElMessage.warning('请先选择知识库')
     return
   }
 
   try {
     await documentsStore.upload(selectedFile.value, knowledgeBaseId.value)
-    // Reset after success
     uploadRef.value?.clearFiles()
     selectedFile.value = null
     fileList.value = []
   } catch (error) {
-    // Error already shown by store
+    // 错误已由 store 处理
   }
 }
 </script>

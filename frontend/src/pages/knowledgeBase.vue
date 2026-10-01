@@ -3,13 +3,13 @@
     <el-card class="kb-card">
       <template #header>
         <div class="card-header">
-          <span>Knowledge Base Management</span>
-          <el-button type="primary" @click="showCreateDialog = true">Create Knowledge Base</el-button>
+          <span>知识库管理</span>
+          <el-button type="primary" @click="showCreateDialog = true">创建知识库</el-button>
         </div>
       </template>
 
       <div v-if="kbStore.knowledgeBases.length === 0" class="empty-state">
-        <el-empty description="No knowledge bases yet. Create one to get started." />
+        <el-empty description="暂无知识库，请创建一个开始使用" />
       </div>
 
       <div v-else class="kb-list">
@@ -26,27 +26,27 @@
                 <span class="kb-desc" v-if="kb.description">{{ kb.description }}</span>
               </div>
               <div class="kb-actions">
-                <el-tag size="small">{{ kb.docCount }} documents</el-tag>
+                <el-tag size="small">{{ kb.docCount }} 个文档</el-tag>
                 <el-button type="primary" size="small" @click="expandKB(kb)">
-                  {{ expandedKBId === kb.id ? 'Collapse' : 'View Documents' }}
+                  {{ expandedKBId === kb.id ? '收起' : '查看文档' }}
                 </el-button>
               </div>
             </div>
           </template>
 
           <div v-if="expandedKBId === kb.id" class="documents-section">
-            <el-divider content-position="left">Documents</el-divider>
+            <el-divider content-position="left">文档列表</el-divider>
             <div v-if="kbDocuments.length === 0" class="empty-docs">
-              <el-empty description="No documents in this knowledge base." :image-size="60" />
+              <el-empty description="该知识库中暂无文档" :image-size="60" />
             </div>
             <div v-else class="doc-list">
               <div v-for="doc in kbDocuments" :key="doc.id" class="doc-item">
                 <div class="doc-info">
                   <span class="doc-name">{{ doc.fileName }}</span>
-                  <span class="doc-meta">{{ formatFileSize(doc.fileSize) }} - {{ doc.chunkCount }} chunks</span>
+                  <span class="doc-meta">{{ formatFileSize(doc.fileSize) }} - {{ doc.chunkCount }} 个文本块</span>
                 </div>
                 <el-button type="danger" size="small" @click="handleDeleteDoc(doc.id, kb.id)">
-                  Delete
+                  删除
                 </el-button>
               </div>
             </div>
@@ -55,33 +55,33 @@
       </div>
     </el-card>
 
-    <!-- Create KB Dialog -->
-    <el-dialog v-model="showCreateDialog" title="Create Knowledge Base" width="400px">
+    <!-- 创建知识库对话框 -->
+    <el-dialog v-model="showCreateDialog" title="创建知识库" width="400px">
       <el-form :model="createForm" label-width="80px">
-        <el-form-item label="Name" required>
-          <el-input v-model="createForm.name" placeholder="Enter knowledge base name" />
+        <el-form-item label="名称" required>
+          <el-input v-model="createForm.name" placeholder="请输入知识库名称" />
         </el-form-item>
-        <el-form-item label="Description">
+        <el-form-item label="描述">
           <el-input
             v-model="createForm.description"
             type="textarea"
             :rows="3"
-            placeholder="Enter description (optional)"
+            placeholder="请输入描述（可选）"
           />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showCreateDialog = false">Cancel</el-button>
-        <el-button type="primary" @click="handleCreateKB">Create</el-button>
+        <el-button @click="showCreateDialog = false">取消</el-button>
+        <el-button type="primary" @click="handleCreateKB">创建</el-button>
       </template>
     </el-dialog>
 
-    <!-- Delete Confirm Dialog -->
-    <el-dialog v-model="showDeleteDialog" title="Confirm Delete" width="300px">
-      <p>Are you sure you want to delete this document? This action cannot be undone.</p>
+    <!-- 删除确认对话框 -->
+    <el-dialog v-model="showDeleteDialog" title="确认删除" width="300px">
+      <p>确定要删除这个文档吗？此操作无法撤销。</p>
       <template #footer>
-        <el-button @click="showDeleteDialog = false">Cancel</el-button>
-        <el-button type="danger" @click="confirmDeleteDoc">Delete</el-button>
+        <el-button @click="showDeleteDialog = false">取消</el-button>
+        <el-button type="danger" @click="confirmDeleteDoc">删除</el-button>
       </template>
     </el-dialog>
   </div>
@@ -135,7 +135,6 @@ function handleDeleteDoc(docId, kbId) {
 async function confirmDeleteDoc() {
   const { docId, kbId } = pendingDeleteDoc.value
   await kbStore.removeDocument(docId, kbId)
-  // Refresh document list
   try {
     const res = await getDocuments(kbId)
     kbDocuments.value = res.data

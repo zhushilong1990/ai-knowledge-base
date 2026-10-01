@@ -3,10 +3,10 @@
     <el-container>
       <el-header class="header">
         <div class="header-content">
-          <h2>AI Knowledge Base</h2>
+          <h2>AI 知识库</h2>
           <div class="user-info">
             <span class="user-email">{{ userEmail }}</span>
-            <el-button type="danger" size="small" @click="handleLogout">Logout</el-button>
+            <el-button type="danger" size="small" @click="handleLogout">退出登录</el-button>
           </div>
         </div>
       </el-header>
@@ -14,30 +14,30 @@
       <el-main>
         <el-card>
           <template #header>
-            <span>Welcome to AI Knowledge Base</span>
+            <span>欢迎使用 AI 知识库</span>
           </template>
           <div class="welcome-content">
-            <p>You are successfully logged in!</p>
+            <p>您已成功登录！</p>
             <p class="token-info">
-              Token status:
+              Token 状态：
               <el-tag :type="tokenExpiringSoon ? 'warning' : 'success'" size="small">
-                {{ tokenExpiringSoon ? 'Expiring soon' : 'Valid' }}
+                {{ tokenExpiringSoon ? '即将过期' : '有效' }}
               </el-tag>
             </p>
-            <p class="user-detail">Logged in as: {{ userEmail }}</p>
+            <p class="user-detail">登录账号：{{ userEmail }}</p>
             <p class="upload-link">
               <router-link to="/upload">
-                <el-button type="primary" size="small">Upload Document</el-button>
+                <el-button type="primary" size="small">上传文档</el-button>
               </router-link>
             </p>
             <p class="chat-link">
               <router-link to="/chat">
-                <el-button type="success" size="small">Start Chat</el-button>
+                <el-button type="success" size="small">开始聊天</el-button>
               </router-link>
             </p>
             <p class="kb-link">
               <router-link to="/knowledge-bases">
-                <el-button type="info" size="small">Manage Knowledge Bases</el-button>
+                <el-button type="info" size="small">管理知识库</el-button>
               </router-link>
             </p>
           </div>
@@ -66,13 +66,13 @@ onMounted(async () => {
     const response = await api.get('/auth/userinfo')
     userEmail.value = response.data.email
   } catch (error) {
-    console.error('Failed to fetch user info:', error)
+    console.error('获取用户信息失败:', error)
   }
 })
 
 const handleLogout = async () => {
   await authStore.logout()
-  ElMessage.success('Logged out successfully')
+  ElMessage.success('已退出登录')
   router.push('/login')
 }
 </script>

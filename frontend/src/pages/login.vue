@@ -3,29 +3,29 @@
     <el-card class="login-card">
       <template #header>
         <div class="card-header">
-          <span>AI Knowledge Base - Login</span>
+          <span>AI 知识库 - 登录</span>
         </div>
       </template>
 
       <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
-        <el-form-item label="Email" prop="email">
-          <el-input v-model="form.email" type="email" placeholder="Enter your email" />
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="form.email" type="email" placeholder="请输入邮箱" />
         </el-form-item>
 
-        <el-form-item label="Password" prop="password">
-          <el-input v-model="form.password" type="password" placeholder="Enter your password" @keyup.enter="handleLogin" />
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="form.password" type="password" placeholder="请输入密码" @keyup.enter="handleLogin" />
         </el-form-item>
 
         <el-form-item>
           <el-button type="primary" :loading="loading" @click="handleLogin" style="width: 100%">
-            Login
+            登录
           </el-button>
         </el-form-item>
       </el-form>
 
       <div class="register-link">
-        <span>Don't have an account? </span>
-        <router-link to="/register">Register</router-link>
+        <span>还没有账号？</span>
+        <router-link to="/register">立即注册</router-link>
       </div>
     </el-card>
   </div>
@@ -51,11 +51,11 @@ const form = reactive({
 
 const rules = {
   email: [
-    { required: true, message: 'Please enter your email', trigger: 'blur' },
-    { type: 'email', message: 'Please enter a valid email', trigger: 'blur' }
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }
   ],
   password: [
-    { required: true, message: 'Please enter your password', trigger: 'blur' }
+    { required: true, message: '请输入密码', trigger: 'blur' }
   ]
 }
 
@@ -75,13 +75,13 @@ const handleLogin = async () => {
       const { accessToken, refreshToken } = response.data
       authStore.setTokens(accessToken, refreshToken)
 
-      ElMessage.success('Login successful')
+      ElMessage.success('登录成功')
       router.push('/home')
     } catch (error) {
       if (error.response?.data?.error) {
         ElMessage.error(error.response.data.error)
       } else {
-        ElMessage.error('Login failed')
+        ElMessage.error('登录失败')
       }
     } finally {
       loading.value = false

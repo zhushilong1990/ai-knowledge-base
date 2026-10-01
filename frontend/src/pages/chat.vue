@@ -1,11 +1,11 @@
 <template>
   <div class="chat-container">
     <el-container>
-      <!-- Sidebar: Session List -->
+      <!-- 侧边栏：会话列表 -->
       <el-aside width="250px" class="chat-sidebar">
         <div class="sidebar-header">
-          <span>Chat Sessions</span>
-          <el-button type="primary" size="small" @click="startNewSession">New</el-button>
+          <span>聊天记录</span>
+          <el-button type="primary" size="small" @click="startNewSession">新建</el-button>
         </div>
         <el-scrollbar>
           <div class="session-list">
@@ -18,27 +18,31 @@
               <span class="session-title">{{ session.title }}</span>
             </div>
             <div v-if="chatStore.sessions.length === 0" class="no-sessions">
-              No sessions yet
+              暂无会话
             </div>
           </div>
         </el-scrollbar>
       </el-aside>
 
-      <!-- Main Chat Area -->
+      <!-- 主聊天区域 -->
       <el-main class="chat-main">
-        <!-- Knowledge Base Selector -->
+        <!-- 知识库选择器 -->
         <div class="kb-selector">
-          <span class="kb-label">Knowledge Base:</span>
-          <el-select v-model="selectedKbId" placeholder="Select knowledge base" size="default">
-            <el-option label="Knowledge Base 1" :value="1" />
-            <!-- Future: load from API -->
+          <span class="kb-label">知识库：</span>
+          <el-select v-model="selectedKbId" placeholder="请选择知识库" size="default">
+            <el-option
+              v-for="kb in kbStore.knowledgeBases"
+              :key="kb.id"
+              :label="kb.name"
+              :value="kb.id"
+            />
           </el-select>
         </div>
 
-        <!-- Message List -->
+        <!-- 消息列表 -->
         <el-scrollbar ref="scrollbarRef" class="message-list">
           <div v-if="currentMessages.length === 0" class="empty-chat">
-            <p>No messages yet. Start a conversation!</p>
+            <p>开始提问吧！</p>
           </div>
           <div v-else>
             <div
@@ -49,7 +53,7 @@
               <div class="message-bubble">
                 <div class="message-content">{{ msg.content }}</div>
                 <div v-if="msg.role === 'assistant' && msg.sources && msg.sources.length > 0" class="message-sources">
-                  <div class="sources-label">Sources:</div>
+                  <div class="sources-label">参考来源：</div>
                   <div v-for="source in msg.sources" :key="source.id" class="source-item">
                     <span class="source-id">【{{ source.id }}】</span>
                     <span class="source-text">{{ source.text }}</span>
@@ -79,19 +83,19 @@
           </div>
         </el-scrollbar>
 
-        <!-- Loading Indicator -->
+        <!-- 加载指示器 -->
         <div v-if="chatStore.loading" class="loading-indicator">
           <el-icon class="is-loading"><loading /></el-icon>
-          <span>AI is thinking...</span>
+          <span>AI 思考中...</span>
         </div>
 
-        <!-- Input Area -->
+        <!-- 输入区域 -->
         <div class="input-area">
           <el-input
             v-model="question"
             type="textarea"
             :rows="2"
-            placeholder="Type your question here..."
+            placeholder="请输入您的问题，按 Ctrl+Enter 发送..."
             @keydown.enter.ctrl="handleSend"
             :disabled="chatStore.loading"
           />
@@ -101,7 +105,7 @@
             :disabled="!canSend"
             @click="handleSend"
           >
-            Send
+            发送
           </el-button>
         </div>
       </el-main>
@@ -114,11 +118,13 @@ import { ref, computed, nextTick, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Loading, ThumbUp, ThumbDown } from '@element-plus/icons-vue'
 import { useChatStore } from '../stores/chat.js'
+import { useKnowledgeBaseStore } from '../stores/knowledgeBase.js'
 
 const chatStore = useChatStore()
+const kbStore = useKnowledgeBaseStore()
 const scrollbarRef = ref(null)
 const question = ref('')
-const selectedKbId = ref(1)
+const selectedKbId = ref(null)
 
 const currentMessages = computed(() => {
   if (!chatStore.currentSessionId) return []
@@ -149,7 +155,7 @@ async function handleSend() {
     await nextTick()
     scrollToBottom()
   } catch (error) {
-    // Error already shown by store
+    // 错误已由 store 处理
   }
 }
 
@@ -168,6 +174,7 @@ async function handleFeedback(messageId, rating) {
 
 onMounted(() => {
   chatStore.loadSessions()
+  kbStore.loadKnowledgeBases()
 })
 </script>
 

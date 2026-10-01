@@ -3,13 +3,13 @@
     <el-card class="admin-card">
       <template #header>
         <div class="card-header">
-          <span>Admin Panel</span>
+          <span>管理面板</span>
         </div>
       </template>
 
       <el-form :model="form" label-width="120px">
-        <el-form-item label="Knowledge Base">
-          <el-select v-model="form.kbId" placeholder="Select knowledge base" @change="loadStatus">
+        <el-form-item label="知识库">
+          <el-select v-model="form.kbId" placeholder="请选择知识库" @change="loadStatus">
             <el-option
               v-for="kb in knowledgeBases"
               :key="kb.id"
@@ -19,12 +19,12 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="Status" v-if="form.kbId">
+        <el-form-item label="状态" v-if="form.kbId">
           <el-descriptions :column="2" border>
-            <el-descriptions-item label="Documents">
+            <el-descriptions-item label="文档数量">
               {{ status.documentCount || 0 }}
             </el-descriptions-item>
-            <el-descriptions-item label="Total Chunks">
+            <el-descriptions-item label="文本块总数">
               {{ status.totalChunks || 0 }}
             </el-descriptions-item>
           </el-descriptions>
@@ -37,7 +37,7 @@
             :disabled="!form.kbId"
             @click="handleReindex"
           >
-            Re-index Knowledge Base
+            重新索引知识库
           </el-button>
         </el-form-item>
       </el-form>
@@ -77,7 +77,7 @@ async function loadKnowledgeBases() {
     const res = await getKnowledgeBases()
     knowledgeBases.value = res.data || []
   } catch (err) {
-    ElMessage.error('Failed to load knowledge bases')
+    ElMessage.error('加载知识库失败')
   }
 }
 
@@ -103,11 +103,11 @@ async function handleReindex() {
   try {
     const res = await api.post(`/admin/reindex/${form.kbId}`)
     message.type = 'success'
-    message.text = `Reindex completed: ${res.data.reindexed || 0} documents, ${res.data.totalChunks || 0} chunks`
+    message.text = `重新索引完成：${res.data.reindexed || 0} 个文档，${res.data.totalChunks || 0} 个文本块`
     await loadStatus()
   } catch (err) {
     message.type = 'error'
-    message.text = err.response?.data?.error || 'Reindex failed'
+    message.text = err.response?.data?.error || '重新索引失败'
   } finally {
     reindexing.value = false
   }
