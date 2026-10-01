@@ -41,6 +41,9 @@ public class DocumentService {
     @Value("${files.persist-directory}")
     private String filesPath;
 
+    @Value("${siliconflow.api-key}")
+    private String siliconflowApiKey;
+
     private final DocumentMapper documentMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -232,6 +235,7 @@ public class DocumentService {
         }
         ProcessBuilder pb = new ProcessBuilder(pythonPath, scriptPath);
         pb.redirectErrorStream(false);
+        pb.environment().put("SILICON_FLOW_API_KEY", siliconflowApiKey);
 
         Process process = pb.start();
 
