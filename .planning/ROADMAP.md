@@ -7,9 +7,9 @@
 ## 阶段
 
 - [x] **Phase 1: Foundation & Security** — JWT 认证、CORS、API 结构
-- [ ] **Phase 2: Document Ingestion** — 上传、解析、分块、embedding、Chroma 索引
-- [ ] **Phase 3: Chat/QA** — RAG 检索、上下文注入、LLM 响应
-- [ ] **Phase 4: Knowledge Base Management** — 知识库 CRUD、文档-知识库关联
+- [x] **Phase 2: Document Ingestion** — 上传、解析、分块、embedding、Chroma 索引
+- [x] **Phase 3: Chat/QA** — RAG 检索、上下文注入、LLM 响应
+- [x] **Phase 4: Knowledge Base Management** — 知识库 CRUD、文档-知识库关联
 - [ ] **Phase 5: History & Feedback** — 对话历史、点赞/点踩
 - [ ] **Phase 6: Maintenance & Polish** — 部署、监控、多端点
 
@@ -104,8 +104,8 @@
 | 阶段 | 已完成计划 | 状态 | 完成时间 |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Security | 3/3 | Complete | 2026-09-29 |
-| 2. Document Ingestion | 0/? | Not started | - |
-| 3. Chat/QA | 0/? | Not started | - |
-| 4. Knowledge Base Management | 0/? | Not started | - |
+| 2. Document Ingestion | 3/3 | Complete | 2026-10-01 |
+| 3. Chat/QA | 2/2 | Complete | 2026-10-01 |
+| 4. Knowledge Base Management | 1/1 | Complete | 2026-10-01 |
 | 5. History & Feedback | 0/? | Not started | - |
 | 6. Maintenance & Polish | 0/? | Not started | - |
