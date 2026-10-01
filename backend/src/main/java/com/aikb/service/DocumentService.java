@@ -224,7 +224,13 @@ public class DocumentService {
     }
 
     private String executePythonScript(String scriptPath, String requestJson) throws Exception {
-        ProcessBuilder pb = new ProcessBuilder("python", scriptPath);
+        String pythonPath = System.getenv("PYTHON_HOME");
+        if (pythonPath == null || pythonPath.isEmpty()) {
+            pythonPath = "C:\\Users\\leo\\AppData\\Local\\Programs\\Python\\Python311\\python.exe";
+        } else {
+            pythonPath = pythonPath + "\\python.exe";
+        }
+        ProcessBuilder pb = new ProcessBuilder(pythonPath, scriptPath);
         pb.redirectErrorStream(false);
 
         Process process = pb.start();

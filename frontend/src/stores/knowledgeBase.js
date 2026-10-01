@@ -9,9 +9,9 @@ export const useKnowledgeBaseStore = defineStore('knowledgeBase', () => {
   async function loadKnowledgeBases() {
     try {
       const res = await getKnowledgeBases()
-      knowledgeBases.value = res.data
+      knowledgeBases.value = res.data || []
     } catch (error) {
-      ElMessage.error('Failed to load knowledge bases')
+      ElMessage.error('加载知识库列表失败')
     }
   }
 

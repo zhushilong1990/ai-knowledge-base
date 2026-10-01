@@ -6,8 +6,6 @@ Deletes existing collection and re-embeds all documents from stored files.
 import sys
 import json
 import os
-import uuid
-import shutil
 
 import chromadb
 import requests
@@ -61,21 +59,27 @@ def main():
     try:
         req = json.load(sys.stdin)
     except json.JSONDecodeError as e:
-        print(json.dumps({"error": f"Invalid JSON input: {str(e)}}))
+        sys.stderr.write(json.dumps({"error": f"Invalid JSON input: {str(e)}"}) + "\n")
+        sys.stderr.flush()
+        sys.exit(1)
+    except Exception as e:
+        sys.stderr.write(json.dumps({"error": f"Failed to read input: {str(e)}"}) + "\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     kb_id = req.get("kbId", 0)
     user_id = req.get("userId", 0)
     chroma_path = req.get("chromaPath", CHROMA_PATH)
-    files_path = req.get("filesPath", FILES_PATH)
-    api_key = os.environ.get("SILICONFLOW_API_KEY", "")
+    api_key = os.environ.get("SILICON_FLOW_API_KEY", "")
 
     if not kb_id:
-        print(json.dumps({"error": "kbId is required"}))
+        sys.stderr.write(json.dumps({"error": "kbId is required"}) + "\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     if not user_id:
-        print(json.dumps({"error": "userId is required"}))
+        sys.stderr.write(json.dumps({"error": "userId is required"}) + "\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     collection_name = f"user_{user_id}_kb_{kb_id}"
@@ -83,21 +87,16 @@ def main():
     try:
         client = chromadb.PersistentClient(path=chroma_path)
 
-        # Delete existing collection to rebuild from scratch
         try:
             client.delete_collection(name=collection_name)
         except Exception:
-            # Collection may not exist yet
             pass
 
         collection = client.get_or_create_collection(name=collection_name)
 
-        # For reindex to work, we need the list of documents to re-embed
-        # Since we don't have direct DB access from Python, we accept document list via input
         documents = req.get("documents", [])
 
         if not documents:
-            # No documents provided - just clear the collection and return
             print(json.dumps({
                 "status": "completed",
                 "reindexed": 0,
@@ -132,7 +131,8 @@ def main():
                     batch_embeddings = get_embedding(batch, api_key)
                     embeddings.extend(batch_embeddings)
                 except Exception as e:
-                    print(json.dumps({"error": f"Embedding generation failed: {str(e)}"}))
+                    sys.stderr.write(json.dumps({"error": f"Embedding generation failed: {str(e)}"}) + "\n")
+                    sys.stderr.flush()
                     sys.exit(1)
 
             collection.add(
@@ -150,7 +150,8 @@ def main():
         }))
 
     except Exception as e:
-        print(json.dumps({"error": f"Reindex failed: {str(e)}"}))
+        sys.stderr.write(json.dumps({"error": f"Reindex failed: {str(e)}"}) + "\n")
+        sys.stderr.flush()
         sys.exit(1)
 
 

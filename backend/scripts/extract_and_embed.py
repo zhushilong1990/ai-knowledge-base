@@ -53,17 +53,23 @@ def main():
     try:
         req = json.load(sys.stdin)
     except json.JSONDecodeError as e:
-        print(json.dumps({"error": f"Invalid JSON input: {str(e)}"}))
+        sys.stderr.write(json.dumps({"error": f"Invalid JSON input: {str(e)}"}) + "\n")
+        sys.stderr.flush()
+        sys.exit(1)
+    except Exception as e:
+        sys.stderr.write(json.dumps({"error": f"Failed to read input: {str(e)}"}) + "\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     file_path = req.get("filePath", "")
     kb_id = req.get("kbId", 0)
     user_id = req.get("userId", 0)
     chroma_path = req.get("chromaPath", CHROMA_PATH)
-    api_key = os.environ.get("SILICONFLOW_API_KEY", "")
+    api_key = os.environ.get("SILICON_FLOW_API_KEY", "")
 
     if not file_path:
-        print(json.dumps({"error": "filePath is required"}))
+        sys.stderr.write(json.dumps({"error": "filePath is required"}) + "\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     ext = os.path.splitext(file_path)[1].lstrip(".").lower()
@@ -71,11 +77,13 @@ def main():
     try:
         text = extract_text(file_path, ext)
     except Exception as e:
-        print(json.dumps({"error": f"Text extraction failed: {str(e)}"}))
+        sys.stderr.write(json.dumps({"error": f"Text extraction failed: {str(e)}"}) + "\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     if not text.strip():
-        print(json.dumps({"error": "No text could be extracted from the file"}))
+        sys.stderr.write(json.dumps({"error": "No text could be extracted from the file"}) + "\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     chunks = chunk_text(text)
@@ -88,7 +96,8 @@ def main():
             batch_embeddings = get_embedding(batch, api_key)
             embeddings.extend(batch_embeddings)
         except Exception as e:
-            print(json.dumps({"error": f"Embedding generation failed: {str(e)}"}))
+            sys.stderr.write(json.dumps({"error": f"Embedding generation failed: {str(e)}"}) + "\n")
+            sys.stderr.flush()
             sys.exit(1)
 
     doc_id = str(uuid.uuid4())
@@ -104,7 +113,8 @@ def main():
             metadatas=[{"docId": doc_id, "kbId": str(kb_id), "chunkIndex": j} for j in range(len(chunks))]
         )
     except Exception as e:
-        print(json.dumps({"error": f"Chroma indexing failed: {str(e)}"}))
+        sys.stderr.write(json.dumps({"error": f"Chroma indexing failed: {str(e)}"}) + "\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     print(json.dumps({
