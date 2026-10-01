@@ -1,11 +1,14 @@
 package com.aikb.controller;
 
+import com.aikb.entity.Document;
 import com.aikb.service.DocumentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,8 +35,9 @@ public class AdminController {
             Map<String, Object> result = documentService.reindexKnowledgeBase(knowledgeBaseId, userId);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(Map.of("error", e.getMessage()));
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
         }
     }
 
@@ -44,19 +48,23 @@ public class AdminController {
     public ResponseEntity<?> status(@RequestParam Long kbId, Authentication auth) {
         Long userId = extractUserId(auth);
         try {
-            var documents = documentService.getDocumentsByKbId(kbId);
+            List<Document> documents = documentService.getDocumentsByKbId(kbId);
             int docCount = documents.size();
-            int totalChunks = documents.stream()
-                    .mapToInt(doc -> doc.getChunkCount() != null ? doc.getChunkCount() : 0)
-                    .sum();
-            return ResponseEntity.ok(Map.of(
-                    "kbId", kbId,
-                    "documentCount", docCount,
-                    "totalChunks", totalChunks
-            ));
+            int totalChunks = 0;
+            for (Document doc : documents) {
+                if (doc.getChunkCount() != null) {
+                    totalChunks += doc.getChunkCount();
+                }
+            }
+            Map<String, Object> result = new HashMap<>();
+            result.put("kbId", kbId);
+            result.put("documentCount", docCount);
+            result.put("totalChunks", totalChunks);
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(Map.of("error", e.getMessage()));
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
         }
     }
 
@@ -68,7 +76,7 @@ public class AdminController {
             Object principal = auth.getPrincipal();
             if (principal instanceof UserDetails) {
                 String email = ((UserDetails) principal).getUsername();
-                return email.hashCode() & 0xFFFFFFFFL;
+                return (long) email.hashCode() & 0xFFFFFFFFL;
             }
             return Long.parseLong(auth.getName());
         } catch (Exception e) {
