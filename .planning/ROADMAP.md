@@ -1,104 +1,104 @@
-# Roadmap: AI Knowledge Base
+# 路线图：AI 知识库
 
-## Overview
+## 概览
 
-Build an AI-powered RAG knowledge base application where users upload documents, create knowledge bases, and ask questions answered by retrieving relevant chunks augmented with LLM generation. The system uses a 3-tier architecture: Vue 3 + uni-app frontend, Java Spring Boot BFF, and Python FastAPI AI service with Chroma vector database.
+构建一个 AI 驱动的 RAG 知识库应用，用户上传文档创建知识库，AI 基于知识库内容检索相关块并增强 LLM 生成来回答问题。系统采用 3 层架构：Vue 3 + uni-app 前端、Java Spring Boot BFF、Python FastAPI AI 服务 + Chroma 向量数据库。
 
-## Phases
+## 阶段
 
-- [x] **Phase 1: Foundation & Security** - JWT auth, CORS, API structure
-- [ ] **Phase 2: Document Ingestion** - Upload, parsing, chunking, embedding, Chroma indexing
-- [ ] **Phase 3: Chat/QA** - RAG retrieval, context injection, LLM response
-- [ ] **Phase 4: Knowledge Base Management** - KB CRUD, document-KB association
-- [ ] **Phase 5: History & Feedback** - Conversation history, thumbs up/down
-- [ ] **Phase 6: Maintenance & Polish** - Deployment, monitoring, multi-endpoint
+- [x] **Phase 1: Foundation & Security** — JWT 认证、CORS、API 结构
+- [ ] **Phase 2: Document Ingestion** — 上传、解析、分块、embedding、Chroma 索引
+- [ ] **Phase 3: Chat/QA** — RAG 检索、上下文注入、LLM 响应
+- [ ] **Phase 4: Knowledge Base Management** — 知识库 CRUD、文档-知识库关联
+- [ ] **Phase 5: History & Feedback** — 对话历史、点赞/点踩
+- [ ] **Phase 6: Maintenance & Polish** — 部署、监控、多端点
 
-## Phase Details
+## 阶段详情
 
 ### Phase 1: Foundation & Security
-**Goal**: Users can securely authenticate and access the system
-**Depends on**: Nothing (first phase)
-**Requirements**: AUTH-01, AUTH-02, AUTH-03
-**Mode**: mvp
-**Success Criteria** (what must be TRUE):
-  1. User can register with email/password and receive confirmation
-  2. User can log in and receive JWT token that persists across sessions
-  3. User can access protected endpoints using JWT token
-  4. User can log out and token is invalidated
-  5. System rejects requests with expired or invalid tokens
-**Plans:** 3 plans
-- [x] 01-01-PLAN.md — Core Auth tracer: Spring Boot project + User entity + Register + Login + JWT filter
-- [x] 01-02-PLAN.md — Refresh token: backend refresh endpoint + frontend Axios interceptor with auto-refresh
-- [x] 01-03-PLAN.md — Logout + error handling: client-side clear + 401 redirect + global error toasts
+**目标**：用户可以安全认证并访问系统
+**依赖**：无（第一阶段）
+**需求**：AUTH-01, AUTH-02, AUTH-03
+**模式**：MVP
+**成功标准**（必须为真）：
+  1. 用户可以邮箱/密码注册并收到确认
+  2. 用户可以登录并收到跨会话持久化的 JWT token
+  3. 用户可以使用 JWT token 访问受保护端点
+  4. 用户可以登出且 token 失效
+  5. 系统拒绝过期或无效 token 的请求
+**计划：** 3 个计划
+- [x] 01-01-PLAN.md — 核心认证追踪：Spring Boot 项目 + User 实体 + 注册 + 登录 + JWT 过滤器
+- [x] 01-02-PLAN.md — 刷新 token：后端刷新端点 + 前端 Axios 拦截器自动刷新
+- [x] 01-03-PLAN.md — 登出 + 错误处理：客户端清除 + 401 重定向 + 全局错误 toast
 
 ### Phase 2: Document Ingestion
-**Goal**: Users can upload documents that are parsed, chunked, embedded, and stored in Chroma
-**Depends on**: Phase 1
-**Requirements**: RAG-01, RAG-02
-**Mode**: mvp
-**Success Criteria** (what must be TRUE):
-  1. User can upload PDF, Word, or TXT files via API endpoint
-  2. System extracts text content from uploaded documents
-  3. System chunks text into optimal segments (400-600 tokens with overlap)
-  4. System generates embeddings and stores in Chroma vector database
-  5. Upload process handles errors gracefully with user feedback
-**Plans**: TBD
+**目标**：用户上传的文档被解析、分块、embedding 并存储到 Chroma
+**依赖**：Phase 1
+**需求**：RAG-01, RAG-02
+**模式**：MVP
+**成功标准**（必须为真）：
+  1. 用户可以通过 API 端点上传 PDF、Word 或 TXT 文件
+  2. 系统从上传的文档中提取文本内容
+  3. 系统将文本分块为最优片段（400-600 token，带重叠）
+  4. 系统生成 embedding 并存储到 Chroma 向量数据库
+  5. 上传过程优雅处理错误并给用户反馈
+**计划**：待定
 
 ### Phase 3: Chat/QA
-**Goal**: Users can ask questions and receive answers based on retrieved knowledge base content
-**Depends on**: Phase 2
-**Requirements**: RAG-03, CHAT-01
-**Mode**: mvp
-**Success Criteria** (what must be TRUE):
-  1. User can send a question via chat interface
-  2. System retrieves relevant document chunks from Chroma based on question
-  3. System injects retrieved context into LLM prompt
-  4. User receives generated answer with citations to source documents
-  5. User can ask follow-up questions in same conversation thread
-**Plans**: TBD
+**目标**：用户可以提问并收到基于检索到的知识库内容的答案
+**依赖**：Phase 2
+**需求**：RAG-03, CHAT-01
+**模式**：MVP
+**成功标准**（必须为真）：
+  1. 用户可以通过聊天界面发送问题
+  2. 系统从 Chroma 基于问题检索相关文档块
+  3. 系统将检索到的上下文注入 LLM 提示词
+  4. 用户收到带源文档引用的生成答案
+  5. 用户可以在同一会话线程中追问
+**计划**：待定
 
 ### Phase 4: Knowledge Base Management
-**Goal**: Users can organize documents into knowledge bases and manage them
-**Depends on**: Phase 2
-**Requirements**: KB-01, KB-02
-**Mode**: mvp
-**Success Criteria** (what must be TRUE):
-  1. User can view list of their knowledge bases with document counts
-  2. User can create new knowledge base with name and description
-  3. User can view documents within a specific knowledge base
-  4. User can delete documents from a knowledge base
-  5. Deleting a document removes its vectors from Chroma
-**Plans**: TBD
+**目标**：用户可以将文档组织到知识库中进行管理
+**依赖**：Phase 2
+**需求**：KB-01, KB-02
+**模式**：MVP
+**成功标准**（必须为真）：
+  1. 用户可以查看自己的知识库列表及文档数量
+  2. 用户可以创建新知识库（名称和描述）
+  3. 用户可以查看特定知识库内的文档
+  4. 用户可以删除知识库中的文档
+  5. 删除文档时同步从 Chroma 删除其向量
+**计划**：待定
 
 ### Phase 5: History & Feedback
-**Goal**: Users can review past conversations and provide feedback
-**Depends on**: Phase 3
-**Requirements**: CHAT-02
-**Mode**: mvp
-**Success Criteria** (what must be TRUE):
-  1. User can view list of past conversation sessions
-  2. User can click into a session and see full conversation history
-  3. User can give thumbs up or thumbs down to a response
-  4. User feedback is stored and associated with the response
-  5. Conversations persist across browser sessions
-**Plans**: TBD
+**目标**：用户可以回顾过去的对话并提供反馈
+**依赖**：Phase 3
+**需求**：CHAT-02
+**模式**：MVP
+**成功标准**（必须为真）：
+  1. 用户可以查看过去会话列表
+  2. 用户可以点击进入会话查看完整对话历史
+  3. 用户可以对回答点赞或点踩
+  4. 用户反馈被存储并与回答关联
+  5. 对话跨浏览器会话持久化
+**计划**：待定
 
 ### Phase 6: Maintenance & Polish
-**Goal**: System is production-ready with monitoring and multi-endpoint deployment
-**Depends on**: Phase 5
-**Requirements**: None additional
-**Mode**: mvp
-**Success Criteria** (what must be TRUE):
-  1. Application deploys successfully to hosting platform (H5 accessible via public URL)
-  2. System handles network errors gracefully with user-friendly messages
-  3. API endpoints have basic health check and monitoring
-  4. Multi-endpoint variants (H5/miniprogram/App) can be built from same codebase
-  5. Re-indexing pipeline can refresh stale document vectors
-**Plans**: TBD
+**目标**：系统通过监控和多端点部署达到生产就绪
+**依赖**：Phase 5
+**需求**：无额外
+**模式**：MVP
+**成功标准**（必须为真）：
+  1. 应用成功部署到托管平台（H5 可通过公网 URL 访问）
+  2. 系统优雅处理网络错误，显示用户友好消息
+  3. API 端点有基本健康检查和监控
+  4. 多端点变体（H5/小程序/App）可从同一代码库构建
+  5. 重新索引管道可以刷新陈旧的文档向量
+**计划**：待定
 
-## Progress
+## 进度
 
-| Phase | Plans Complete | Status | Completed |
+| 阶段 | 已完成计划 | 状态 | 完成时间 |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Security | 3/3 | Complete | 2026-09-29 |
 | 2. Document Ingestion | 0/? | Not started | - |

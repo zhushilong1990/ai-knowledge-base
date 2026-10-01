@@ -1,45 +1,45 @@
-# Testing Patterns
+# 测试模式
 
-**Analysis Date:** 2026-09-29
+**分析日期：** 2026-09-29
 
-## Test Framework
+## 测试框架
 
-**Status:** Not configured
+**状态：** 未配置
 
-This is a learning/demo project. Per project guidelines (`CLAUDE.md` Section 8):
-- "单元测试（中小公司基本不要求）" — Unit tests are not required for this learning project
+这是一个学习/演示项目。根据项目规范（`CLAUDE.md` 第 8 节）：
+- "单元测试（中小公司基本不要求）" — 本学习项目不需要单元测试
 
-**No test framework detected:**
-- No Jest, Vitest, or other test runner configured
-- No `*.test.*` or `*.spec.*` files found
-- No test scripts in `package.json`
-- No `jest.config.*`, `vitest.config.*`, or similar
+**未检测到测试框架：**
+- 未配置 Jest、Vitest 或其他测试运行器
+- 未找到 `*.test.*` 或 `*.spec.*` 文件
+- `package.json` 中无测试脚本
+- 无 `jest.config.*`、`vitest.config.*` 或类似配置
 
-**Run Commands:** Not applicable
+**运行命令：** 不适用
 
-## Test File Organization
+## 测试文件组织
 
-**Location:** N/A - No tests exist in this project
+**位置：** N/A — 项目中不存在测试
 
-**Naming:** N/A
+**命名：** N/A
 
-**Structure:** N/A
+**结构：** N/A
 
-## Test Structure
+## 测试结构
 
-**Suite Organization:** N/A
+**套件组织：** N/A
 
-**Patterns:** N/A
+**模式：** N/A
 
 ## Mocking
 
-**Framework:** N/A - No mocking framework used
+**框架：** N/A — 未使用 mock 框架
 
-**Mock Data:**
-- Mock API exists at `vue-counter/src/mock/api.js`
-- Uses in-memory JavaScript objects (`mockDB`)
-- Simulates network delay with `setTimeout`
-- Conditional import pattern:
+**Mock 数据：**
+- Mock API 位于 `vue-counter/src/mock/api.js`
+- 使用内存 JavaScript 对象（`mockDB`）
+- 用 `setTimeout` 模拟网络延迟
+- 条件引入模式：
 ```javascript
 const USE_MOCK = false
 
@@ -53,7 +53,7 @@ export async function fetchTodos() {
 }
 ```
 
-**Mock Implementation** (`src/mock/api.js`):
+**Mock 实现**（`src/mock/api.js`）：
 ```javascript
 const mockDB = {
   todos: [
@@ -69,63 +69,63 @@ function delay(ms = 500) {
 }
 ```
 
-## Fixtures and Factories
+## Fixtures 和工厂
 
-**Test Data:** N/A - No test fixtures
+**测试数据：** N/A — 无测试 fixtures
 
-**Location:** N/A
+**位置：** N/A
 
-## Coverage
+## 覆盖率
 
-**Requirements:** None enforced
+**要求：** 无强制要求
 
-**View Coverage:** N/A
+**视图覆盖率：** N/A
 
-## Test Types
+## 测试类型
 
-**Unit Tests:** N/A - Not used in this project
+**单元测试：** N/A — 本项目未使用
 
-**Integration Tests:** N/A - Not used in this project
+**集成测试：** N/A — 本项目未使用
 
-**E2E Tests:** N/A - Not used in this project
+**端到端测试：** N/A — 本项目未使用
 
-## Common Patterns
+## 常见模式
 
-**Async Testing:** N/A
+**异步测试：** N/A
 
-**Error Testing:** N/A
+**错误测试：** N/A
 
-## Manual Verification Approach
+## 手动验证方式
 
-Since automated tests are not used, functionality is verified through:
+由于未使用自动化测试，功能通过以下方式验证：
 
-1. **Dev server testing:** `npm run dev` + browser verification
-2. **Vue DevTools:** Inspect component state, props, Pinia store
-3. **Network tab:** Verify API requests/responses
-4. **Console:** Check for JavaScript errors
+1. **开发服务器测试：** `npm run dev` + 浏览器验证
+2. **Vue DevTools：** 检查组件状态、props、Pinia store
+3. **Network 标签：** 验证 API 请求/响应
+4. **Console：** 检查 JavaScript 错误
 
-## Mock API Pattern
+## Mock API 模式
 
-The mock API (`src/mock/api.js`) serves as a substitute for automated tests:
+Mock API（`src/mock/api.js`）作为自动化测试的替代：
 
 ```javascript
-// Mock returns consistent structure
+// Mock 返回一致结构
 return {
   code: 200,
   data: { ... }
 }
 
-// Error simulation via code field
+// 通过 code 字段模拟错误
 return { code: 401, message: '用户名或密码错误' }
 ```
 
-**Mock DB Operations:**
-- `login(username, password)` - Returns token for admin/123456
-- `fetchTodos()` - Returns all todos
-- `createTodo({ text, priority })` - Adds to mockDB
-- `updateTodo(id, patch)` - Updates existing todo
-- `deleteTodo(id)` - Removes from mockDB
+**Mock DB 操作：**
+- `login(username, password)` — 返回 admin/123456 的 token
+- `fetchTodos()` — 返回所有 todos
+- `createTodo({ text, priority })` — 添加到 mockDB
+- `updateTodo(id, patch)` — 更新现有 todo
+- `deleteTodo(id)` — 从 mockDB 删除
 
 ---
 
-*Testing analysis: 2026-09-29*
+*测试分析：2026-09-29*

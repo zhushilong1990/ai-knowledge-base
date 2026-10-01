@@ -1,78 +1,78 @@
-# External Integrations
+# 外部集成
 
-**Analysis Date:** 2026-09-29
+**分析日期：** 2026-09-29
 
-## APIs & External Services
+## API 和外部服务
 
-**Backend API (Spring Boot):**
-- Spring Boot REST API running on port 8080
-- Production endpoint: `https://siwei7905.cloud:8443/api` (HTTPS on port 8443)
-- Dev proxy: Vite dev server proxies `/api` to `http://123.207.69.23:8080`
-- Auth: JWT Bearer token (received on login, stored in localStorage, injected by Axios interceptor)
-- CORS: Configured via `CorsConfig.java` allowing cross-origin requests
+**后端 API（Spring Boot）：**
+- Spring Boot REST API 运行在端口 8080
+- 生产端点：`https://siwei7905.cloud:8443/api`（HTTPS，端口 8443）
+- 开发代理：Vite 开发服务器将 `/api` 代理到 `http://123.207.69.23:8080`
+- 认证：JWT Bearer Token（登录后收到，存 localStorage，Axios 拦截器注入）
+- CORS：通过 `CorsConfig.java` 配置允许跨域请求
 
-## Data Storage
+## 数据存储
 
-**Backend Database:**
-- H2 in-memory database (default Spring Boot auto-config)
-- JDBC connection: Spring Boot auto-configures H2 from starter
-- No external database service detected
+**后端数据库：**
+- H2 内存数据库（Spring Boot 默认自动配置）
+- JDBC 连接：Spring Boot 从 starter 自动配置 H2
+- 未检测到外部数据库服务
 
-**Frontend State:**
-- localStorage - Persists JWT token and user object across page refreshes
-- Pinia stores (in-memory) - Auth state (`stores/auth.js`), Todo state (`stores/todos.js`)
+**前端状态：**
+- localStorage — JWT Token 和用户对象在页面刷新后持久化
+- Pinia stores（内存）— 认证状态（`stores/auth.js`）、Todo 状态（`stores/todos.js`）
 
-**File Storage:**
-- None (no file upload functionality)
+**文件存储：**
+- 无（暂无文件上传功能）
 
-## Authentication & Identity
+## 认证与身份
 
-**Auth Provider:**
-- Custom JWT-based authentication
-- Implementation: `backend/util/JwtUtil.java` - HS256 signing, 7-day expiration
-- Login endpoint: `POST /api/auth/login` returns `{ token, userId, username }`
-- Token injection: Axios request interceptor in `src/api/http.js` sets `Authorization: Bearer <token>`
-- Token storage: `localStorage.setItem('token', ...)` in Pinia auth store
-- Route guard: `router.beforeEach` in `src/router/index.js` checks `useAuthStore().token`
+**认证提供商：**
+- 自定义基于 JWT 的认证
+- 实现：`backend/util/JwtUtil.java` — HS256 签名，7 天过期
+- 登录端点：`POST /api/auth/login` 返回 `{ token, userId, username }`
+- Token 注入：Axios 请求拦截器 `src/api/http.js` 设置 `Authorization: Bearer <token>`
+- Token 存储：`localStorage.setItem('token', ...)` 在 Pinia auth store 中
+- 路由守卫：`src/router/index.js` 中的 `router.beforeEach` 检查 `useAuthStore().token`
 
-**No external auth providers** (no OAuth, no third-party auth services)
+**无外部认证提供商**（无 OAuth，无第三方认证服务）
 
-## Monitoring & Observability
+## 监控与可观测性
 
-**Error Tracking:**
-- None detected (no Sentry, LogRocket, etc.)
+**错误追踪：**
+- 未检测到（Sentry、LogRocket 等均无）
 
-**Logs:**
-- Frontend: `console.error` for global Vue errors and Vite proxy errors
-- Backend: Standard Spring Boot logging (SLF4J)
-- Axios interceptor logs errors to ElMessage (Element Plus toast)
+**日志：**
+- 前端：`console.error` 记录全局 Vue 错误和 Vite 代理错误
+- 后端：标准 Spring Boot 日志（SLF4J）
+- Axios 拦截器通过 ElMessage（Element Plus toast）记录错误
 
-## CI/CD & Deployment
+## CI/CD 与部署
 
-**Hosting:**
-- Frontend: GitHub Pages (configured with `base: './'` in `vite.config.js`)
-- Backend: Tencent Cloud server (IP: 123.207.69.23, port 8080)
+**托管：**
+- 前端：GitHub Pages（`vite.config.js` 中 `base: './'` 配置）
+- 后端：腾讯云服务器（IP：123.207.69.23，端口 8080）
 
-**CI Pipeline:**
-- None detected (no GitHub Actions, no automated deploy)
+**CI 流水线：**
+- 未检测到（无 GitHub Actions，无自动化部署）
 
-## Environment Configuration
+## 环境配置
 
-**Required env vars:**
-- None detected (demo stage hardcodes JWT secret in `application.yml`)
+**所需环境变量：**
+- 未检测到（演示阶段 JWT 密钥写死在 `application.yml` 中）
 
-**Secrets location:**
-- `backend/src/main/resources/application.yml` - JWT secret hardcoded (demo acceptable)
-- No `.env` files detected in repo
+**密钥位置：**
+- `backend/src/main/resources/application.yml` — JWT 密钥写死（演示可接受）
+- 仓库中未检测到 `.env` 文件
 
-## Webhooks & Callbacks
+## Webhook 和回调
 
-**Incoming:**
-- None
+**入站：**
+- 无
 
-**Outgoing:**
-- None (no webhook outbound calls)
+**出站：**
+- 无（无出站 webhook 调用）
 
 ---
 
-*Integration audit: 2026-09-29*
+*集成审计：2026-09-29*

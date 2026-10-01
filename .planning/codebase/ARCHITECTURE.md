@@ -1,197 +1,197 @@
-# Architecture
+# 架构
 
-**Analysis Date:** 2026-09-29
+**分析日期：** 2026-09-29
 
-## System Overview
+## 系统概览
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        fullstack-learning Repository                        │
+│                        fullstack-learning 代码仓库                            │
 ├─────────────────────────────────┬───────────────────────────────────────────┤
 │        vue-counter/             │           uni-app-demo/                   │
-│   (Week 1-2 Vite + Vue 3)        │       (Week 2 cross-platform)           │
+│   （第 1-2 周 Vite + Vue 3）     │       （第 2 周跨平台）                   │
 │   [src/*]                       │       [pages/*]                          │
 └─────────────────────────────────┴───────────────────────────────────────────┘
          │                                     │
          ▼                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           docs/ (Teaching Materials)                        │
-│                    [day1-*.mjs, day1-*.html, utils.mjs]                     │
+│                           docs/（教学材料）                                   │
+│                    [day1-*.mjs, day1-*.html, utils.mjs]                   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Component Responsibilities
+## 组件职责
 
-| Component | Responsibility | File |
+| 组件 | 职责 | 文件 |
 |-----------|----------------|------|
-| `vue-counter` | Main SPA demo (Vite + Vue 3 + Element Plus) | `vue-counter/src/*` |
-| `uni-app-demo` | Cross-platform demo (H5 + WeChat + App) | `uni-app-demo/pages/*` |
-| `docs/` | Standalone teaching exercises (ESM modules, HTML demos) | `docs/*` |
+| `vue-counter` | 主 SPA 演示（Vite + Vue 3 + Element Plus） | `vue-counter/src/*` |
+| `uni-app-demo` | 跨平台演示（H5 + 微信小程序 + App） | `uni-app-demo/pages/*` |
+| `docs/` | 独立教学练习（ESM 模块、HTML 演示） | `docs/*` |
 
-## Pattern Overview
+## 模式概览
 
-**Overall:** Multi-demo learning repository with progressive complexity
+**总体：** 多演示学习仓库，复杂度逐步递进
 
-**Key Characteristics:**
-- Two parallel demo projects sharing Vue 3 fundamentals
-- `vue-counter`: Full-featured SPA with routing, state management, API integration
-- `uni-app-demo`: Cross-platform variant using `uni.request` and `uni.navigateTo`
-- Mock API layer for offline development, real API for production
-- Pinia stores for centralized state with localStorage persistence
+**关键特征：**
+- 两个并行演示项目，共享 Vue 3 基础
+- `vue-counter`：功能完整的 SPA，含路由、状态管理、API 集成
+- `uni-app-demo`：跨平台变体，使用 `uni.request` 和 `uni.navigateTo`
+- Mock API 层用于离线开发，生产环境用真实 API
+- Pinia stores 集中管理状态，localStorage 持久化
 
-## Layers
+## 分层
 
-### `vue-counter/` (Primary SPA)
+### `vue-counter/`（主 SPA）
 
-**Presentation Layer:**
-- Location: `vue-counter/src/views/` and `vue-counter/src/components/`
-- Contains: Page components (`Home`, `Login`, `TodoList`, `TodoDetail`, `Stats`) and reusable components (`TodoItem`, `TodoForm`, `TodoStats`, `TodoDeleteConfirm`)
-- Depends on: Pinia stores, Vue Router
+**展示层：**
+- 位置：`vue-counter/src/views/` 和 `vue-counter/src/components/`
+- 内容：页面组件（`Home`、`Login`、`TodoList`、`TodoDetail`、`Stats`）和可复用组件（`TodoItem`、`TodoForm`、`TodoStats`、`TodoDeleteConfirm`）
+- 依赖：Pinia stores、Vue Router
 
-**State Layer:**
-- Location: `vue-counter/src/stores/`
-- Contains: `auth.js` (token + user session), `todos.js` (CRUD + pagination + field mapping)
-- Pattern: Pinia with `defineStore` using Composition API (`ref`, `computed`)
-- Persistence: `localStorage` for auth token/user, API-only for todos
+**状态层：**
+- 位置：`vue-counter/src/stores/`
+- 内容：`auth.js`（token + 用户会话）、`todos.js`（CRUD + 分页 + 字段映射）
+- 模式：Pinia + `defineStore`，使用 Composition API（`ref`、`computed`）
+- 持久化：auth token/user 用 localStorage，todos 仅通过 API
 
-**API Layer:**
-- Location: `vue-counter/src/api/`
-- Contains: `http.js` (Axios instance with interceptors), `auth.js`, `todos.js`
-- Pattern: Axios with request interceptor (injects `Authorization: Bearer` token) and response interceptor (401 handling, error unwrapping)
-- Base URL: `https://siwei7905.cloud:8443/api` (production)
+**API 层：**
+- 位置：`vue-counter/src/api/`
+- 内容：`http.js`（Axios 实例 + 拦截器）、`auth.js`、`todos.js`
+- 模式：Axios 请求拦截器注入 `Authorization: Bearer` Token，响应拦截器处理 401 和解包错误
+- Base URL：`https://siwei7905.cloud:8443/api`（生产）
 
-**Routing Layer:**
-- Location: `vue-counter/src/router/index.js`
-- Pattern: Vue Router 4 with hash history
-- Guards: `beforeEach` checks auth token from Pinia store
+**路由层：**
+- 位置：`vue-counter/src/router/index.js`
+- 模式：Vue Router 4，hash 历史模式
+- 守卫：`beforeEach` 检查 Pinia store 中的 auth token
 
-### `uni-app-demo/` (Cross-Platform)
+### `uni-app-demo/`（跨平台）
 
-**Presentation Layer:**
-- Location: `uni-app-demo/pages/*`
-- Contains: `pages/index/index.vue`, `pages/todo/list.vue`, `pages/todo/detail.vue`
+**展示层：**
+- 位置：`uni-app-demo/pages/*`
+- 内容：`pages/index/index.vue`、`pages/todo/list.vue`、`pages/todo/detail.vue`
 
-**Mock Layer:**
-- Location: `uni-app-demo/mock/`
-- Contains: `index.js` (interceptor setup via `uni.addInterceptor`), `api.js`
-- Pattern: Intercepts `uni.request` calls and routes to local mock API
+**Mock 层：**
+- 位置：`uni-app-demo/mock/`
+- 内容：`index.js`（通过 `uni.addInterceptor` 设置拦截器）、`api.js`
+- 模式：拦截 `uni.request` 调用并路由到本地 mock API
 
-### `docs/` (Standalone Exercises)
+### `docs/`（独立练习）
 
-**Teaching Materials:**
-- Location: `docs/`
-- Contains: ESM module exercises (`utils.mjs`, `main.mjs`), HTML demos (`day1-morning.html`, `day1-my-card.html`, `day2-css-practice.html`), JS exercises (`day1-js-exercises.js`)
-- Pattern: Standalone HTML/JS files without build step
+**教学材料：**
+- 位置：`docs/`
+- 内容：ESM 模块练习（`utils.mjs`、`main.mjs`）、HTML 演示（`day1-morning.html`、`day1-my-card.html`、`day2-css-practice.html`）、JS 练习（`day1-js-exercises.js`）
+- 模式：无构建步骤的独立 HTML/JS 文件
 
-## Data Flow
+## 数据流
 
-### Primary Request Path (vue-counter)
+### 主要请求路径（vue-counter）
 
-1. **UI Layer** (`vue-counter/src/views/TodoList.vue`) calls `useTodosStore().loadFromApi()`
-2. **Store** (`vue-counter/src/stores/todos.js`) calls `todosApi.fetchTodos()`
-3. **API Layer** (`vue-counter/src/api/todos.js`) calls `http.get('/todos')`
-4. **Axios** (`vue-counter/src/api/http.js`) injects `Authorization` header via request interceptor
-5. **Backend** returns `ApiResponse { code, data, message }`
-6. **Response interceptor** unwraps `data` and returns it to store
-7. **Store** maps backend fields (`title`/`priority int`) to frontend fields (`text`/`priority string`)
-8. **UI** re-renders via Vue reactivity
+1. **UI 层**（`vue-counter/src/views/TodoList.vue`）调用 `useTodosStore().loadFromApi()`
+2. **Store**（`vue-counter/src/stores/todos.js`）调用 `todosApi.fetchTodos()`
+3. **API 层**（`vue-counter/src/api/todos.js`）调用 `http.get('/todos')`
+4. **Axios**（`vue-counter/src/api/http.js`）通过请求拦截器注入 `Authorization` 头
+5. **后端** 返回 `ApiResponse { code, data, message }`
+6. **响应拦截器** 解包 `data` 并返回给 store
+7. **Store** 映射后端字段（`title`/`priority int`）到前端字段（`text`/`priority string`）
+8. **UI** 通过 Vue 响应式重新渲染
 
-### Auth Flow
+### 认证流
 
-1. User submits credentials on `Login.vue`
-2. `useAuthStore().login()` calls `authApi.login()`
-3. Backend returns `{ token, userId, username }`
-4. Store saves to Pinia (`token`, `user`) + localStorage
-5. Route guard reads from store, allows access to protected routes
+1. 用户在 `Login.vue` 提交凭证
+2. `useAuthStore().login()` 调用 `authApi.login()`
+3. 后端返回 `{ token, userId, username }`
+4. Store 保存到 Pinia（`token`、`user`）+ localStorage
+5. 路由守卫从 store 读取，允许访问受保护路由
 
-### uni-app Mock Flow
+### uni-app Mock 流
 
-1. `pages/todo/list.vue` calls `uni.request({ url: '/todos' })`
-2. `uni.addInterceptor` in `mock/index.js` intercepts the request
-3. Routes to `mock/api.js` functions, returns mock data
-4. Page uses returned data directly
+1. `pages/todo/list.vue` 调用 `uni.request({ url: '/todos' })`
+2. `mock/index.js` 中的 `uni.addInterceptor` 拦截请求
+3. 路由到 `mock/api.js` 函数，返回 mock 数据
+4. 页面直接使用返回的数据
 
-## Key Abstractions
+## 关键抽象
 
-**Pinia Store (State Container):**
-- Purpose: Single source of truth for application state
-- Examples: `useAuthStore`, `useTodosStore`
-- Pattern: Composition API style with `defineStore`
+**Pinia Store（状态容器）：**
+- 目的：应用状态的单一真相来源
+- 示例：`useAuthStore`、`useTodosStore`
+- 模式：Composition API 风格的 `defineStore`
 
-**Axios HTTP Client:**
-- Purpose: Centralized HTTP with interceptors
-- Examples: `http.js`
-- Pattern: Singleton instance with request/response interceptors
+**Axios HTTP 客户端：**
+- 目的：带拦截器的集中式 HTTP
+- 示例：`http.js`
+- 模式：单例实例，含请求/响应拦截器
 
-**uni-app Interceptor:**
-- Purpose: Redirect API calls to mock or real backend
-- Examples: `uni-app-demo/mock/index.js`
-- Pattern: `uni.addInterceptor('request', { invoke(args) {...} })`
+**uni-app 拦截器：**
+- 目的：将 API 调用重定向到 mock 或真实后端
+- 示例：`uni-app-demo/mock/index.js`
+- 模式：`uni.addInterceptor('request', { invoke(args) {...} })`
 
-**Field Mapper:**
-- Purpose: Transform between API and UI field names
-- Examples: `backToFrontPriority()`, `frontToBackPriority()` in `stores/todos.js`
-- Pattern: Bidirectional mapping functions
+**字段映射器：**
+- 目的：API 和 UI 字段名之间转换
+- 示例：`backToFrontPriority()`、`frontToBackPriority()` 在 `stores/todos.js`
+- 模式：双向映射函数
 
-## Entry Points
+## 入口点
 
-**`vue-counter/src/main.js`:**
-- Triggers: `npm run dev` or `npm run build`
-- Responsibilities: Creates Vue app, registers Element Plus, Pinia, Vue Router, global error handler
-- Mounts to: `<div id="app">`
+**`vue-counter/src/main.js`：**
+- 触发：`npm run dev` 或 `npm run build`
+- 职责：创建 Vue 应用，注册 Element Plus、Pinia、Vue Router、全局错误处理器
+- 挂载到：`<div id="app">`
 
-**`uni-app-demo/main.js`:**
-- Triggers: `npm run dev:%PLATFORM%` (mp-weixin, h5, etc.)
-- Responsibilities: Creates SSR app, calls `setupMock()`, exports `createApp()`
-- Mounts to: `App.vue` component
+**`uni-app-demo/main.js`：**
+- 触发：`npm run dev:%PLATFORM%`（mp-weixin、h5 等）
+- 职责：创建 SSR 应用，调用 `setupMock()`，导出 `createApp()`
+- 挂载到：`App.vue` 组件
 
-**`docs/main.mjs`:**
-- Triggers: `node docs/main.mjs`
-- Responsibilities: ESM module imports demonstration
+**`docs/main.mjs`：**
+- 触发：`node docs/main.mjs`
+- 职责：ESM 模块导入演示
 
-## Architectural Constraints
+## 架构约束
 
-- **No TypeScript:** Plain JavaScript only (per CLAUDE.md D8)
-- **No Routing Lazy Loading:** All components statically imported (demo scale does not require it)
-- **No Server-Side Rendering:** `vue-counter` is pure client-side SPA
-- **Global Error Handling:** Vue `app.config.errorHandler` in `main.js` for uncaught errors
-- **Pinia Before Router:** Pinia must be registered before router (router guards use stores)
+- **无 TypeScript：** 仅使用纯 JavaScript（按 CLAUDE.md D8）
+- **无路由懒加载：** 所有组件静态导入（演示规模不需要）
+- **无服务端渲染：** `vue-counter` 是纯客户端 SPA
+- **全局错误处理：** `main.js` 中的 Vue `app.config.errorHandler` 捕获未处理错误
+- **Pinia 先于 Router：** Pinia 必须在路由之前注册（路由守卫依赖 stores）
 
-## Anti-Patterns
+## 反模式
 
-### Field Mapping in Store
+### Store 中的字段映射
 
-**What happens:** Field mapping (`title` vs `text`, `priority` int vs string) scattered across store actions
-**Why it's wrong:** Mixes business logic with data transformation; makes API contract changes painful
-**Do this instead:** Create a dedicated `transformers/` or `mappers/` layer, or use computed properties
+**问题：** 字段映射（`title` vs `text`、`priority` int vs string）分散在 store actions 中
+**为什么错误：** 业务逻辑和数据转换混在一起；API 契约变更时改动痛苦
+**正确做法：** 创建专用的 `transformers/` 或 `mappers/` 层，或使用计算属性
 
-### localStorage in API Layer
+### API 层中的 localStorage
 
-**What happens:** `http.js` reads `localStorage.getItem('token')` directly instead of using Pinia store
-**Why it's wrong:** Multiple sources of truth for auth state; store already syncs localStorage on login/logout
-**Do this instead:** Inject token via Pinia store in the request interceptor
+**问题：** `http.js` 直接读取 `localStorage.getItem('token')` 而不是使用 Pinia store
+**为什么错误：** 认证状态有多个真相来源；store 已经在登录/登出时同步 localStorage
+**正确做法：** 在请求拦截器中通过 Pinia store 注入 token
 
-### Hardcoded API URLs
+### 硬编码 API URL
 
-**What happens:** `http.js` has hardcoded `baseURL: 'https://siwei7905.cloud:8443/api'`
-**Why it's wrong:** Dev/prod switching requires code changes
-**Do this instead:** Use `.env` files with `VITE_API_BASE_URL`
+**问题：** `http.js` 中硬编码 `baseURL: 'https://siwei7905.cloud:8443/api'`
+**为什么错误：** 开发/生产切换需要改代码
+**正确做法：** 使用 `.env` 文件和 `VITE_API_BASE_URL`
 
-## Error Handling
+## 错误处理
 
-**Strategy:** Centralized in Axios response interceptor + Vue global error handler
+**策略：** 集中在 Axios 响应拦截器 + Vue 全局错误处理器
 
-**Patterns:**
-- HTTP errors (401, 5xx): Axios interceptor shows `ElMessage.error`, redirects on 401
-- Network errors (`Failed to fetch`): Global error handler in `main.js` catches and displays friendly message
-- Backend errors (business code != 200): Response interceptor rejects with message
+**模式：**
+- HTTP 错误（401、5xx）：Axios 拦截器显示 `ElMessage.error`，401 时跳转登录页
+- 网络错误（`Failed to fetch`）：`main.js` 中的全局错误处理器捕获并显示友好消息
+- 后端错误（业务 code != 200）：响应拦截器用 message 拒绝
 
-## Cross-Cutting Concerns
+## 横切关注点
 
-**Logging:** `console.error` for errors, `console.log` for debug output
-**Validation:** Element Plus form validation (`el-form` with `rules` prop) on client side
-**Authentication:** Token stored in Pinia + localStorage, read by Axios interceptor and router guard
+**日志：** `console.error` 记录错误，`console.log` 用于调试输出
+**校验：** Element Plus 表单校验（`el-form` 的 `rules` prop）客户端校验
+**认证：** Token 存在 Pinia + localStorage，Axios 拦截器和路由守卫读取
 
 ---
 
-*Architecture analysis: 2026-09-29*
+*架构分析：2026-09-29*

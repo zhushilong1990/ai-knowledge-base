@@ -1,400 +1,401 @@
-# Pitfalls Research
+# 陷阱调研
 
-**Domain:** RAG Knowledge Base Applications
-**Researched:** 2026-09-29
-**Confidence:** MEDIUM-HIGH
+**领域：** RAG 知识库应用
+**调研时间：** 2026-09-29
+**置信度：** 中高
 
-## Critical Pitfalls
+## 关键陷阱
 
-### Pitfall 1: Chunking Strategy Mismatch
+### 陷阱 1：分块策略不匹配
 
-**What goes wrong:**
-RAG systems retrieve irrelevant or incomplete context, producing hallucinations or incomplete answers. Approximately 80% of RAG production failures trace back to chunking decisions, not embedding quality or retrieval algorithms.
+**出问题的地方：**
+RAG 系统检索到不相关或不完整的上下文，产生幻觉或答案不完整。大约 80% 的 RAG 生产故障可追溯到分块决策，而非 embedding 质量或检索算法。
 
-**Why it happens:**
-- Uniform fixed-size chunking ignores document structure (headers, tables, code blocks)
-- Chunk sizes too small lose cross-sentence context
-- Chunk sizes too large introduce noise from irrelevant content
-- No overlap causes boundary sentences to be orphaned
+**原因：**
+- 均匀固定大小分块忽略文档结构（标题、表格、代码块）
+- 块太小丢失跨句子上下文
+- 块太大引入无关内容噪声
+- 无重叠导致边界句子被孤立
 
-**How to avoid:**
-- Use 400-600 token chunks with 10-20% overlap for enterprise documents
-- Apply semantic chunking for mixed-format documents (tables, narrative, code)
-- Isolate tables as separate chunks; split code on AST boundaries
-- Test with 10-20 real queries to measure accuracy before production
+**如何避免：**
+- 企业文档使用 400-600 token 分块，10-20% 重叠
+- 混合格式文档（表格、叙述、代码）应用语义分块
+- 将表格作为独立块隔离；按 AST 边界分割代码
+- 上生产前用 10-20 个真实查询测试精度
 
-**Warning signs:**
-- Answers reference wrong sections
-- Key context missing from responses
-- Answers accurate but incomplete
-- High variance in response quality across queries
+**警示信号：**
+- 答案引用错误章节
+- 关键上下文在响应中缺失
+- 答案准确但不完整
+- 响应质量差异大
 
-**Phase to address:**
-Phase 2 (Data Processing Pipeline)
-
----
-
-### Pitfall 2: Document Parsing Failures
-
-**What goes wrong:**
-PDF and Word documents lose critical structure during parsing. Headers become plain text, tables become unreadable garbage, embedded images with key figures are discarded entirely.
-
-**Why it happens:**
-- Basic text extraction (pdftotext) ignores layout and reading order
-- Multi-column documents get lines interleaved
-- Tables parsed as space-separated gibberish
-- Complex formatting (headers in margins, footnotes) dropped
-
-**How to avoid:**
-- Use layout-aware parsers (LayoutPDFReader, PyMuPDF, docling)
-- Configure table extraction explicitly; verify output
-- Preserve metadata (page numbers, section headers) for traceback
-- Test parsing on representative documents before scaling
-
-**Warning signs:**
-- "参差不齐" output from Chinese documents (wrong reading order)
-- Tables render as jumbled characters
-- Page boundaries unclear in extracted text
-- Footnotes and captions missing
-
-**Phase to address:**
-Phase 2 (Document Ingestion)
+**处理阶段：**
+Phase 2（数据处理管道）
 
 ---
 
-### Pitfall 3: Embedding Model Context Window Overflow
+### 陷阱 2：文档解析失败
 
-**What goes wrong:**
-Documents longer than the embedding model's maximum input length are silently truncated. Relevant content at the end of long documents is never indexed.
+**出问题的地方：**
+PDF 和 Word 文档在解析过程中丢失关键结构。标题变成纯文本，表格变成乱码，嵌入图片（有关键图表）被完全丢弃。
 
-**Why it happens:**
-- Using models with 512-token ceilings (BGE-base, Cohere v3) without awareness
-- Long documents exceed limits during ingestion
-- No warning or error when truncation occurs
-- Semantic meaning lost at document boundaries
+**原因：**
+- 基本文本提取（pdftotext）忽略布局和阅读顺序
+- 多栏文档行被交错
+- 表格被解析为空格分隔的乱码
+- 复杂格式（页边距中的标题、脚注）被丢弃
 
-**How to avoid:**
-- Verify embedding model context limits before selection
-- For long documents, use hierarchical chunking (document -> section -> paragraph)
-- Track chunk metadata (source page, document ID) for traceback
-- Consider models with larger contexts (1024-4096 tokens) for longer documents
+**如何避免：**
+- 使用布局感知解析器（LayoutPDFReader、PyMuPDF、docling）
+- 显式配置表格提取；验证输出
+- 保留元数据（页码、章节标题）以便追溯
+- 规模化前用代表性文档测试解析
 
-**Warning signs:**
-- Answers only reference beginning of documents
-- "Long document" queries always fail
-- No chunks from later sections of long PDFs
-- Embedding API returns warnings about truncated input
+**警示信号：**
+- 中文文档输出"参差不齐"（阅读顺序错误）
+- 表格呈现为乱码字符
+- 页边界在提取文本中不清楚
+- 脚注和标题缺失
 
-**Phase to address:**
-Phase 2 (Embedding Configuration)
-
----
-
-### Pitfall 4: Vector DB Accuracy Degradation at Scale
-
-**What goes wrong:**
-Semantic similarity search returns plausible but factually incorrect results. "Error 221" query returns "Error 222" because they cluster near each other in embedding space.
-
-**Why it happens:**
-- Vector precision degrades 12% at 100,000 pages (EyeLevel.ai research, 2024)
-- Pure semantic search cannot distinguish between similar but distinct entities
-- No exact-match fallback for numerical codes, product IDs, proper nouns
-
-**How to avoid:**
-- Implement hybrid search (keyword + vector) as default
-- Add metadata filters for exact-match fields (IDs, dates, categories)
-- Use reranking to boost exact matches above semantic clusters
-- Monitor retrieval precision metrics; alert on degradation
-
-**Warning signs:**
-- Querying for specific codes returns wrong codes
-- "X" vs "X Plus" or "X Pro" confusion
-- Dates or numbers consistently wrong in answers
-- Retrieval latency spikes at scale
-
-**Phase to address:**
-Phase 3 (Retrieval Pipeline)
+**处理阶段：**
+Phase 2（文档摄入）
 
 ---
 
-### Pitfall 5: LLM Context Window Saturation
+### 陷阱 3：Embedding 模型上下文窗口溢出
 
-**What goes wrong:**
-Retrieving too many chunks overwhelms the LLM context. Critical information gets lost in noise, and response quality degrades as context grows.
+**出问题的地方：**
+长于 embedding 模型最大输入长度的文档被静默截断。长文档末尾的相关内容永远不会被索引。
 
-**Why it happens:**
-- Naive Top-K retrieval without relevance thresholding
-- Increasing chunk count "for better coverage" backfires
-- No context compression or reranking strategy
-- Different LLMs have different optimal context loads
+**原因：**
+- 使用有 512-token 上限的模型（BGE-base、Cohere v3）而不自知
+- 长文档在摄入时超出限制
+- 截断发生时无警告或错误
+- 文档边界处语义丢失
 
-**How to avoid:**
-- Limit retrieved chunks to 4-8 for most LLMs; test empirically
-- Implement reranking to get fewer but better chunks
-- Use context compression on retrieved chunks before injection
-- Route to different model sizes based on query complexity
+**如何避免：**
+- 选择 embedding 模型前验证其上下文限制
+- 长文档使用分层分块（文档 → 章节 → 段落）
+- 跟踪块元数据（来源页、文档 ID）以便追溯
+- 长文档考虑更大上下文模型（1024-4096 tokens）
 
-**Warning signs:**
-- Response quality degrades with more context
-- Late-mentioned facts absent from answers
-- Hallucinations increase with long documents
-- Token counts in prompts are excessive (>16K for GPT-4)
+**警示信号：**
+- 答案仅引用文档开头
+- "长文档"查询总是失败
+- 长 PDF 后续章节无块
+- Embedding API 返回关于截断输入的警告
 
-**Phase to address:**
-Phase 3 (Generation Pipeline)
-
----
-
-### Pitfall 6: Index Staleness
-
-**What goes wrong:**
-Users receive outdated answers because document updates are not reflected in the vector index. Knowledge base drift accumulates silently.
-
-**Why it happens:**
-- No re-indexing pipeline for document updates
-- Incremental updates to source files not propagated to embeddings
-- No version tracking between documents and index
-- Deletions not reflected in index
-
-**How to avoid:**
-- Implement document versioning with index timestamps
-- Trigger re-embedding on document update detection
-- Set up scheduled full re-index cycles (daily/weekly based on update frequency)
-- Log document-to-chunk lineage for targeted reindexing
-
-**Warning signs:**
-- Users report "old information" without specifics
-- Querying recent documents returns no results
-- Index size doesn't match document count
-- No way to determine which chunks are stale
-
-**Phase to address:**
-Phase 4 (Maintenance & Monitoring)
+**处理阶段：**
+Phase 2（Embedding 配置）
 
 ---
 
-### Pitfall 7: Java-Python Service Integration Latency
+### 陷阱 4：规模增大时向量数据库精度下降
 
-**What goes wrong:**
-HTTP calls from Java backend to Python RAG services timeout or add 50-100ms+ latency per request. Long RAG inference requests (embedding, generation) block Java threads.
+**出问题的地方：**
+语义相似性搜索返回看似合理但事实错误的結果。"Error 221" 查询返回"Error 222"，因为它们在 embedding 空间中聚类相近。
 
-**Why it happens:**
-- Synchronous HTTP blocking on Python ML services
-- Default timeout values (30s) insufficient for ML inference
-- No connection pooling between Java and Python services
-- Python GIL limits concurrent request handling
+**原因：**
+- 100,000 页时向量精度下降 12%（EyeLevel.ai 研究，2024）
+- 纯语义搜索无法区分相似但不同的实体
+- 数字代码、产品 ID、专有名词无精确匹配后备
+- 无 reranking 将精确匹配提升到语义聚类之上
 
-**How to avoid:**
-- Configure read timeout to 600000ms (10 minutes) for ML inference calls
-- Use connection pooling (Apache HttpClient, OkHttp)
-- Implement async/queue-based processing with callbacks
-- Consider gRPC for high-throughput Python-Java communication (0.8-12ms vs 2-50ms latency)
+**如何避免：**
+- 将混合搜索（关键词 + 向量）作为默认
+- 为精确匹配字段（ID、日期、类别）加元数据过滤器
+- 使用 reranking 将精确匹配提升到语义聚类之上
+- 监控检索精度指标；精度下降时告警
 
-**Warning signs:**
-- Thread pool exhaustion under load
-- Timeout exceptions on RAG calls
-- High p95 latency on retrieval endpoints
-- Java service OOM despite low actual load
+**警示信号：**
+- 查询特定代码返回错误代码
+- "X" vs "X Plus" 或 "X Pro" 混淆
+- 日期或数字在答案中一贯错误
+- 规模增大时检索延迟飙升
 
-**Phase to address:**
-Phase 3 (Backend Integration)
-
----
-
-### Pitfall 8: API Key Exposure in RAG Pipelines
-
-**What goes wrong:**
-Embedding service API keys, LLM API keys, or vector DB credentials logged in plaintext, committed to git, or passed in environment variables that leak.
-
-**Why it happens:**
-- Keys logged in request headers or response bodies
-- Keys stored in code or config files committed to repository
-- Environment variables printed in error messages
-- No key rotation when developers leave
-
-**How to avoid:**
-- Use secret management services (AWS Secrets Manager, HashiCorp Vault)
-- Never log request headers or full URLs with API keys
-- Implement key rotation automation
-- Use IAM roles/service accounts instead of static keys where possible
-- Add pre-commit hooks to detect key-like patterns
-
-**Warning signs:**
-- API key in git history
-- Keys visible in logs or error traces
-- No key rotation in past 90 days
-- Multiple services sharing same API key
-
-**Phase to address:**
-Phase 1 (Security Architecture)
+**处理阶段：**
+Phase 3（检索管道）
 
 ---
 
-### Pitfall 9: CORS Misconfiguration in RAG APIs
+### 陷阱 5：LLM 上下文窗口饱和
 
-**What goes wrong:**
-Browser-based RAG clients cannot access the API due to missing or overly restrictive CORS headers. API works in Postman but fails in web apps.
+**出问题的地方：**
+检索过多块淹没 LLM 上下文。关键信息在噪声中丢失，随上下文增长响应质量下降。
 
-**Why it happens:**
-- CORS not configured for FastAPI/Flask Python services
-- Allowed origins set to wildcard in production
-- CORS preflight requests not handled
-- Different CORS policy needed for different client types (web, mobile, server)
+**原因：**
+- 无相关性阈值的朴素 Top-K 检索
+- "更好覆盖"增加块数量适得其反
+- 无上下文压缩或 reranking 策略
+- 不同 LLM 有不同最佳上下文负载
 
-**How to avoid:**
-- Explicitly configure allowed origins per environment
-- Use environment variables for origin allowlist
-- Handle preflight OPTIONS requests in middleware
-- Test with actual browser DevTools, not just Postman
+**如何避免：**
+- 大多数 LLM 限制检索块到 4-8；根据经验测试
+- 实现 reranking 以获得更少但更好的块
+- 注入前对检索到的块使用上下文压缩
+- 根据查询复杂度路由到不同模型大小
 
-**Warning signs:**
-- CORS errors in browser console
-- Works on localhost but fails on deployed domain
-- Mobile app works but web fails (or vice versa)
-- OPTIONS requests returning 404
+**警示信号：**
+- 更多上下文反而降低响应质量
+- 后期提到的实事在答案中缺失
+- 长文档幻觉增加
+- 提示词中 token 数过多（GPT-4 >16K）
 
-**Phase to address:**
-Phase 4 (Deployment)
-
----
-
-### Pitfall 10: Poor Retrieval Quality Without Feedback Loops
-
-**What goes wrong:**
-RAG system silently fails in production. Users get wrong answers, no one notices because there is no logging or evaluation of answer quality.
-
-**Why it happens:**
-- No logging of queries and retrieved documents
-- No user feedback mechanism (thumbs up/down, corrections)
-- No automated quality metrics
-- No human review pipeline for edge cases
-
-**How to avoid:**
-- Log every query with retrieved chunks and final answer
-- Implement user feedback collection at point of answer
-- Run periodic manual evaluation on sampled queries
-- Track "unanswerable" rate and "hallucination" rate
-- Set up alerts for sudden drops in user satisfaction
-
-**Warning signs:**
-- No visibility into what users are asking
-- User complaints about wrong answers but no system to track
-- Answer quality cannot be audited retroactively
-- No way to measure improvement over time
-
-**Phase to address:**
-Phase 4 (Monitoring & Iteration)
+**处理阶段：**
+Phase 3（生成管道）
 
 ---
 
-## Technical Debt Patterns
+### 陷阱 6：索引陈旧
 
-| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|----------|-------------------|----------------|-----------------|
-| Fixed 512-token chunks for everything | Simplicity | Misses document structure, loses context | Never in production |
-| Single embedding model for all languages | One model to manage | Non-English quality suffers | MVP only; multilingual requires multilingual model |
-| No chunk overlap | Half the storage/indexing | Boundary context lost | Never |
-| Top-10 retrieval without reranking | Simple pipeline | Lower precision | MVP; production needs reranking |
-| Sync HTTP to Python services | Easier debugging | Latency, thread blocking | Development only |
-| Store API keys in .env | Works immediately | Security breach risk | Never in production |
+**出问题的地方：**
+用户收到过时答案，因为文档更新未反映在向量索引中。知识库漂移悄悄积累。
+
+**原因：**
+- 文档更新无重新索引管道
+- 源文件的增量更新未传播到 embedding
+- 文档和索引之间无版本跟踪
+- 删除未反映在索引中
+
+**如何避免：**
+- 用索引时间戳实现文档版本控制
+- 文档更新检测时触发重新 embedding
+- 设置定期全量重新索引周期（根据更新频率每日/每周）
+- 记录文档到块的 lineage 以便定向重新索引
+
+**警示信号：**
+- 用户报告"旧信息"但无具体细节
+- 查询最近文档无结果
+- 索引大小与文档计数不匹配
+- 无法确定哪些块是陈旧的
+
+**处理阶段：**
+Phase 4（维护与监控）
 
 ---
 
-## Integration Gotchas
+### 陷阱 7：Java-Python 服务集成延迟
 
-| Integration | Common Mistake | Correct Approach |
+**出问题的地方：**
+Java 后端到 Python RAG 服务的 HTTP 调用超时或每次请求增加 50-100ms+ 延迟。长期 RAG 推理请求（embedding、生成）阻塞 Java 线程。
+
+**原因：**
+- 同步 HTTP 阻塞 Python ML 服务
+- 默认超时值（30s）对 ML 推理不足
+- Java 和 Python 服务间无连接池
+- Python GIL 限制并发请求处理
+
+**如何避免：**
+- 将 ML 推理调用读取超时配置为 600000ms（10 分钟）
+- 使用连接池（Apache HttpClient、OkHttp）
+- 实现带回调的异步/基于队列的处理
+- 高吞吐量 Python-Java 通信考虑 gRPC（0.8-12ms vs 2-50ms 延迟）
+
+**警示信号：**
+- 负载下线程池耗尽
+- RAG 调用超时异常
+- 检索端点 p95 延迟高
+- Java 服务 OOM 但实际负载低
+
+**处理阶段：**
+Phase 3（后端集成）
+
+---
+
+### 陷阱 8：RAG 管道中的 API 密钥泄露
+
+**出问题的地方：**
+Embedding 服务 API 密钥、LLM API 密钥或向量 DB 凭证以明文记录、提交到 git 或在泄露的环境变量中。
+
+**原因：**
+- 密钥记录在请求头或响应体中
+- 密钥存储在提交到仓库的代码或配置文件中
+- 环境变量在错误消息中被打印
+- 开发人员离开时无密钥轮换
+
+**如何避免：**
+- 使用密钥管理服务（AWS Secrets Manager、HashiCorp Vault）
+- 永不记录带 API 密钥的请求头或完整 URL
+- 实现密钥轮换自动化
+- 尽可能使用 IAM 角色/服务账号而非静态密钥
+- 加 pre-commit hooks 检测类密钥模式
+
+**警示信号：**
+- Git 历史中有 API 密钥
+- 密钥在日志或错误追踪中可见
+- 过去 90 天无密钥轮换
+- 多个服务共享同一 API 密钥
+
+**处理阶段：**
+Phase 1（安全架构）
+
+---
+
+### 陷阱 9：RAG API 中 CORS 错误配置
+
+**出问题的地方：**
+基于浏览器的 RAG 客户端因缺少或过度限制的 CORS 头无法访问 API。API 在 Postman 中工作但在 Web 应用中失败。
+
+**原因：**
+- FastAPI/Flask Python 服务未配置 CORS
+- 生产中 allowed origins 设为通配符
+- CORS 预检请求（OPTIONS）未处理
+- 不同客户端类型（web、移动端、服务器）需要不同 CORS 策略
+
+**如何避免：**
+- 显式配置每个环境的允许来源
+- 使用环境变量做来源白名单
+- 在中间件中处理预检 OPTIONS 请求
+- 用实际浏览器 DevTools 测试，而不只是 Postman
+
+**警示信号：**
+- 浏览器控制台 CORS 错误
+- 本地 localhost 可行但部署域名失败
+- 移动端可行但 Web 失败（反之亦然）
+- OPTIONS 请求返回 404
+
+**处理阶段：**
+Phase 4（部署）
+
+---
+
+### 陷阱 10：无反馈回路导致检索质量差
+
+**出问题的地方：**
+RAG 系统在生产中静默失败。用户得到错误答案，但没人注意到，因为没有答案质量日志或评估。
+
+**原因：**
+- 无查询和检索文档的日志
+- 无用户反馈机制（点赞/点踩、更正）
+- 无自动化质量指标
+- 无边缘情况人工审查管道
+
+**如何避免：**
+- 记录每个查询及检索到的块和最终答案
+- 在答案处实现用户反馈收集
+- 定期对抽样查询进行人工评估
+- 跟踪"无法回答"率和"幻觉"率
+- 为用户满意度突然下降设置告警
+
+**警示信号：**
+- 对用户问什么毫无可见性
+- 用户抱怨错误答案但无系统追踪
+- 答案质量无法事后审计
+- 无法衡量随时间的改进
+
+**处理阶段：**
+Phase 4（监控与迭代）
+
+---
+
+## 技术债务模式
+
+| 捷径 | 短期收益 | 长期成本 | 何时可接受 |
+|----------|-------------------|----------------|----------------|
+| 所有内容用固定 512-token 块 | 简单 | 丢失文档结构，丢失上下文 | 生产环境永远不行 |
+| 所有语言用单一 embedding 模型 | 一个模型管理 | 非英语质量差 | 仅 MVP；多语言需要多语言模型 |
+| 无块重叠 | 一半存储/索引 | 边界上下文丢失 | 永远不行 |
+| 无 reranking 的 Top-10 检索 | 简单管道 | 精度降低 | MVP；生产需要 reranking |
+| 同步 HTTP 到 Python 服务 | 更易调试 | 延迟，线程阻塞 | 仅开发 |
+| 将 API 密钥存 .env | 立即可用 | 安全泄露风险 | 生产永远不行 |
+
+---
+
+## 集成坑
+
+| 集成 | 常见错误 | 正确做法 |
 |-------------|----------------|------------------|
-| OpenAI Embeddings | Not handling rate limits | Implement exponential backoff with jitter |
-| Pinecone/Qdrant | Not setting namespace for multi-tenant | Use namespace per user/customer |
-| Python ML Service | Blocking async Java thread | Use reactive client with non-blocking I/O |
-| Document Parser | Ignoring parse confidence scores | Log and alert on low-confidence parses |
-| LLM Generation | Not truncating context to model limit | Pre-compress or truncate before injection |
+| OpenAI Embeddings | 未处理速率限制 | 实现带抖动的指数退避 |
+| Pinecone/Qdrant | 未为多租户设置 namespace | 按用户/客户使用 namespace |
+| Python ML 服务 | 阻塞 Java 异步线程 | 使用非阻塞 I/O 的响应式客户端 |
+| 文档解析器 | 忽略解析置信度分数 | 记录低置信度解析并告警 |
+| LLM 生成 | 不将上下文截断到模型限制 | 注入前预压缩或截断 |
 
 ---
 
-## Performance Traps
+## 性能陷阱
 
-| Trap | Symptoms | Prevention | When It Breaks |
+| 陷阱 | 症状 | 预防 | 何时出问题 |
 |------|----------|------------|----------------|
-| Pure vector search | Accuracy drops at 10K+ docs | Hybrid search with keyword fallback | >10,000 pages |
-| No connection pooling | High latency under load | Pool size = expected concurrency | >50 concurrent users |
-| Synchronous RAG calls | Request timeout | Async queue with callbacks | >5 second SLA |
-| No caching | High API costs, slow repeated queries | Semantic cache for similar queries | High query overlap |
-| Unbounded result set | Memory pressure, slow responses | Hard limit on Top-K | Large corpus, high QPS |
+| 纯向量搜索 | 10K+ 文档时精度下降 | 带关键词回退的混合搜索 | >10,000 页 |
+| 无连接池 | 负载下高延迟 | 池大小 = 预期并发数 | >50 并发用户 |
+| 同步 RAG 调用 | 请求超时 | 带回调的异步队列 | >5 秒 SLA |
+| 无缓存 | 高 API 成本，慢重复查询 | 相似查询语义缓存 | 高查询重叠 |
+| 无界结果集 | 内存压力，慢响应 | Top-K 硬限制 | 大语料，高 QPS |
 
 ---
 
-## Security Mistakes
+## 安全错误
 
-| Mistake | Risk | Prevention |
+| 错误 | 风险 | 预防 |
 |---------|------|------------|
-| Logging full prompts with user data | GDPR/PIPL violation | Redact PII from logs; log only query hashes |
-| No input validation on user queries | Prompt injection | Sanitize and validate all user input |
-| Storing embeddings with PII | Data breach exposure | Embed only anonymized content |
-| No access controls on RAG endpoint | Unauthorized data access | Implement authentication and authorization |
-| Third-party API keys in code | Credential leakage | Use secret management; rotate keys |
-| No audit trail for RAG queries | Compliance failure | Log who queried what and when |
+| 在日志中记录带用户数据的完整提示词 | GDPR/PIPL 违规 | 从日志中删除 PII；只记录查询哈希 |
+| 用户查询无输入校验 | 提示词注入 | 清理和校验所有用户输入 |
+| 用 PII 存储 embedding | 数据泄露暴露 | 只 embedding 匿名化内容 |
+| RAG 端点无访问控制 | 未授权数据访问 | 实现认证和授权 |
+| 代码中的第三方 API 密钥 | 凭证泄露 | 使用密钥管理；轮换密钥 |
+| RAG 查询无审计跟踪 | 合规失败 | 记录谁在何时查询了什么 |
 
 ---
 
-## UX Pitfalls
+## UX 陷阱
 
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| "I don't know" not communicated | User thinks wrong answer is correct | Explicitly state when answer not in knowledge base |
-| No source citations | User cannot verify | Include document/page references in answers |
-| Generic error messages | User frustrated, no recourse | Specific errors: "Document X could not be parsed" |
-| No query clarification | Wrong question answered | Ask follow-up when query is ambiguous |
-| Slow responses | User abandons | Show progress indicator; async for >3s responses |
-
----
-
-## "Looks Done But Isn't" Checklist
-
-- [ ] **Chunking:** Uniform chunking configured without testing on real documents
-- [ ] **Parsing:** PDF extraction works on sample but fails on complex layouts
-- [ ] **Embedding:** Model context limit not verified against longest document
-- [ ] **Retrieval:** No hybrid search; pure vector returns wrong codes/IDs
-- [ ] **Generation:** Top-K retrieval with no limit; context overflows LLM
-- [ ] **Indexing:** No re-indexing pipeline; index goes stale immediately
-- [ ] **Security:** API keys in environment variables not secret manager
-- [ ] **Monitoring:** Query logging exists but no answer quality evaluation
-- [ ] **CORS:** Tested with Postman only, not browser clients
-- [ ] **Timeouts:** Python service timeouts not configured for ML inference
+| 陷阱 | 用户影响 | 更好做法 |
+|---------|-------------|----------------|
+| 未传达"我不知道" | 用户以为错误答案是正确的 | 当答案不在知识库中时明确说明 |
+| 无来源引用 | 用户无法验证 | 在答案中包含文档/页引用 |
+| 通用错误消息 | 用户沮丧，无补救 | 具体错误："文档 X 无法解析" |
+| 无查询澄清 | 回答了错误问题 | 查询不明确时追问 |
+| 响应慢 | 用户放弃 | 显示进度指示器；>3s 响应异步 |
 
 ---
 
-## Recovery Strategies
+## "看起来完成但实际没有"检查清单
 
-| Pitfall | Recovery Cost | Recovery Steps |
+- [ ] **分块：** 配置了均匀分块但未用真实文档测试
+- [ ] **解析：** 示例可行但复杂布局失败
+- [ ] **Embedding：** 未验证模型上下文限制与最长文档
+- [ ] **检索：** 无混合搜索；纯向量返回错误代码/ID
+- [ ] **生成：** Top-K 检索无限制；上下文溢出 LLM
+- [ ] **索引：** 无重新索引管道；索引立即陈旧
+- [ ] **安全：** 环境变量中的 API 密钥非密钥管理器
+- [ ] **监控：** 查询日志存在但无答案质量评估
+- [ ] **CORS：** 只用 Postman 测试，未用浏览器客户端
+- [ ] **超时：** Python 服务超时未配置 ML 推理
+
+---
+
+## 恢复策略
+
+| 陷阱 | 恢复成本 | 恢复步骤 |
 |---------|---------------|----------------|
-| Stale index | MEDIUM | Run full re-index; implement incremental update pipeline |
-| Chunking rework | HIGH | Re-chunk all documents; re-embed; update index |
-| API key exposure | CRITICAL | Rotate key immediately; audit access logs; revoke all copies |
-| Context overflow hallucinations | MEDIUM | Reduce Top-K; add reranking; implement context compression |
-| Parsing failures on production docs | MEDIUM | Add new parser; re-parse failed documents; quarantine bad chunks |
-| Hybrid search not implemented | HIGH | Add keyword search index; re-architect retrieval layer |
+| 陈旧索引 | 中 | 运行全量重新索引；实现增量更新管道 |
+| 分块返工 | 高 | 重新分块所有文档；重新 embedding；更新索引 |
+| API 密钥泄露 | 严重 | 立即轮换密钥；审计访问日志；吊销所有副本 |
+| 上下文溢出幻觉 | 中 | 减少 Top-K；加 reranking；实现上下文压缩 |
+| 生产文档解析失败 | 中 | 添加新解析器；重新解析失败文档；隔离坏块 |
+| 未实现混合搜索 | 高 | 添加关键词搜索索引；重新架构检索层 |
 
 ---
 
-## Pitfall-to-Phase Mapping
+## 陷阱到阶段映射
 
-| Pitfall | Prevention Phase | Verification |
+| 陷阱 | 预防阶段 | 验证 |
 |---------|------------------|--------------|
-| Document parsing failures | Phase 2 (Ingestion) | Parse 10 diverse docs; verify structure preserved |
-| Chunking strategy | Phase 2 (Chunking) | Test 20 queries; measure precision/recall |
-| Embedding context overflow | Phase 2 (Embedding) | Verify no truncation warnings; check chunk metadata |
-| Vector DB accuracy at scale | Phase 3 (Retrieval) | Load 10K+ docs; verify specific entity retrieval |
-| LLM context saturation | Phase 3 (Generation) | Test with 8+ chunks; verify quality doesn't degrade |
-| Index staleness | Phase 4 (Maintenance) | Update doc; verify update reflected in <1 hour |
-| Java-Python latency | Phase 3 (Integration) | Load test; verify p95 <500ms |
-| API key exposure | Phase 1 (Security) | Scan repo; verify no keys in history |
-| CORS misconfiguration | Phase 4 (Deployment) | Test from browser; verify actual client works |
-| No feedback loops | Phase 4 (Monitoring) | Verify query logs exist and are queryable |
+| 文档解析失败 | Phase 2（摄入）| 解析 10 个多样化文档；验证结构保留 |
+| 分块策略 | Phase 2（分块）| 测试 20 个查询；测量精度/召回率 |
+| Embedding 上下文溢出 | Phase 2（Embedding）| 验证无截断警告；检查块元数据 |
+| 规模增大时向量 DB 精度 | Phase 3（检索）| 加载 10K+ 文档；验证特定实体检索 |
+| LLM 上下文饱和 | Phase 3（生成）| 用 8+ 块测试；验证质量不下降 |
+| 索引陈旧 | Phase 4（维护）| 更新文档；验证 <1 小时反映在索引中 |
+| Java-Python 延迟 | Phase 3（集成）| 负载测试；验证 p95 <500ms |
+| API 密钥泄露 | Phase 1（安全）| 扫描仓库；验证历史中无密钥 |
+| CORS 错误配置 | Phase 4（部署）| 从浏览器测试；验证实际客户端可行 |
+| 无反馈回路 | Phase 4（监控）| 验证查询日志存在且可查询 |
 
 ---
 
-## Sources
+## 来源
 
 - [Chunking Strategies for RAG (Unstructured.io)](https://unstructured.io/blog/chunking-for-rag-best-practices)
 - [RAG Explosion 2024 (Quantum Encoding)](https://quantumencoding.io/blog/rag-explosion-2024-what-actually-matters)
@@ -408,5 +409,5 @@ Phase 4 (Monitoring & Iteration)
 - [Building Robust RAG (Solita)](https://www.solita.fi/blogs/building-robust-language-models-with-rag-one-pitfall-at-a-time)
 
 ---
-*Pitfalls research for: RAG Knowledge Base Applications*
-*Researched: 2026-09-29*
+*陷阱调研：RAG 知识库应用*
+*调研时间：2026-09-29*

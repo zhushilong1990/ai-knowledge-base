@@ -1,50 +1,50 @@
-# Requirements
+# 需求文档
 
-## v1 Requirements
+## v1 需求
 
-### Authentication (AUTH)
+### 身份认证（AUTH）
 
-- [ ] **AUTH-01**: User can register and login
-- [ ] **AUTH-02**: JWT Token authentication with refresh token support
-- [ ] **AUTH-03**: User can logout
+- [ ] **AUTH-01**：用户可以注册和登录
+- [ ] **AUTH-02**：JWT Token 认证，支持刷新 Token
+- [ ] **AUTH-03**：用户可以登出
 
-### RAG / Document Processing (RAG)
+### RAG / 文档处理（RAG）
 
-- [ ] **RAG-01**: User can upload PDF/Word/TXT documents
-- [ ] **RAG-02**: System automatically parses documents and generates embeddings stored in Chroma
-- [ ] **RAG-03**: User can ask questions via chat, AI generates answers based on knowledge base retrieval
+- [ ] **RAG-01**：用户可以上传 PDF/Word/TXT 文档
+- [ ] **RAG-02**：系统自动解析文档并生成向量，存入 Chroma
+- [ ] **RAG-03**：用户可以通过对话提问，AI 基于知识库检索结果生成答案
 
-### Knowledge Base Management (KB)
+### 知识库管理（KB）
 
-- [ ] **KB-01**: User can view their knowledge base list
-- [ ] **KB-02**: User can delete documents from knowledge base
+- [ ] **KB-01**：用户可以查看自己的知识库列表
+- [ ] **KB-02**：用户可以删除知识库中的文档
 
-### Chat / Conversation (CHAT)
+### 聊天 / 对话（CHAT）
 
-- [ ] **CHAT-01**: User can have multi-turn conversations with AI
-- [ ] **CHAT-02**: Conversation history is saved and can be retrieved
+- [ ] **CHAT-01**：用户可以和 AI 进行多轮对话
+- [ ] **CHAT-02**：对话历史保存，可回溯
 
 ---
 
-## Traceability
+## 需求追溯
 
-| Requirement | Phase | Status |
+| 需求 | 阶段 | 状态 |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| RAG-01 | Phase 2 | Pending |
-| RAG-02 | Phase 2 | Pending |
-| RAG-03 | Phase 3 | Pending |
-| KB-01 | Phase 4 | Pending |
-| KB-02 | Phase 4 | Pending |
-| CHAT-01 | Phase 3 | Pending |
-| CHAT-02 | Phase 5 | Pending |
+| AUTH-01 | Phase 1 | 待实现 |
+| AUTH-02 | Phase 1 | 待实现 |
+| AUTH-03 | Phase 1 | 待实现 |
+| RAG-01 | Phase 2 | 待实现 |
+| RAG-02 | Phase 2 | 待实现 |
+| RAG-03 | Phase 3 | 待实现 |
+| KB-01 | Phase 4 | 待实现 |
+| KB-02 | Phase 4 | 待实现 |
+| CHAT-01 | Phase 3 | 待实现 |
+| CHAT-02 | Phase 5 | 待实现 |
 
 ---
 
-## Traceability Summary
+## 追溯汇总
 
-- **Total v1 requirements:** 10
-- **Mapped to phases:** 10/10
-- **Unmapped (orphaned):** 0
+- **v1 需求总数：** 10
+- **已映射到阶段：** 10/10
+- **未映射（孤立）：** 0

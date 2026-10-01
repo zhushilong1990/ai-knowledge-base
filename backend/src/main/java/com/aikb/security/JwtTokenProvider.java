@@ -5,6 +5,7 @@ import com.aikb.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -28,12 +29,12 @@ public class JwtTokenProvider {
         Date expiry = new Date(now.getTime() + jwtConfig.getAccessTtl());
 
         return Jwts.builder()
-                .subject(user.getEmail())
+                .setSubject(user.getEmail())
                 .claim("userId", user.getId())
                 .claim("type", "access")
-                .issuedAt(now)
-                .expiration(expiry)
-                .signWith(getSigningKey())
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -42,20 +43,20 @@ public class JwtTokenProvider {
         Date expiry = new Date(now.getTime() + jwtConfig.getRefreshTtl());
 
         return Jwts.builder()
-                .subject(user.getEmail())
+                .setSubject(user.getEmail())
                 .claim("type", "refresh")
-                .issuedAt(now)
-                .expiration(expiry)
-                .signWith(getSigningKey())
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
                     .build()
-                    .parseSignedClaims(token);
+                    .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -63,29 +64,29 @@ public class JwtTokenProvider {
     }
 
     public String getUsernameFromToken(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
                 .build()
-                .parseSignedClaims(token)
-                .getPayload()
+                .parseClaimsJws(token)
+                .getBody()
                 .getSubject();
     }
 
     public String getClaimFromToken(String token, String claimName) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody();
         return claims.get(claimName, String.class);
     }
 
     public long getRemainingTime(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody();
         return claims.getExpiration().getTime() - System.currentTimeMillis();
     }
 }

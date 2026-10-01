@@ -1,90 +1,89 @@
-# Coding Conventions
+# 编码规范
 
-**Analysis Date:** 2026-09-29
+**分析日期：** 2026-09-29
 
-## Naming Patterns
+## 命名规范
 
-**Files:**
-- Vue components: PascalCase `.vue` files (e.g., `TodoList.vue`, `TodoDeleteConfirm.vue`)
-- JavaScript modules: camelCase (e.g., `http.js`, `auth.js`)
-- Directories: camelCase or kebab-case (e.g., `stores/`, `api/`, `mock/`)
+**文件：**
+- Vue 组件：PascalCase `.vue` 文件（如 `TodoList.vue`、`TodoDeleteConfirm.vue`）
+- JavaScript 模块：camelCase（如 `http.js`、`auth.js`）
+- 目录：camelCase 或 kebab-case（如 `stores/`、`api/`、`mock/`）
 
-**Functions:**
-- camelCase for all JavaScript functions (e.g., `handleLogin`, `loadFromApi`)
-- Event handlers prefixed with `handle` (e.g., `handleLogout`, `handleLogin`)
-- Actions async-prefixed when they call APIs (e.g., `createViaApi`, `deleteViaApi`)
+**函数：**
+- 所有 JavaScript 函数使用 camelCase（如 `handleLogin`、`loadFromApi`）
+- 事件处理函数以 `handle` 开头（如 `handleLogout`、`handleLogin`）
+- 调用 API 的异步操作以 `async` 开头（如 `createViaApi`、`deleteViaApi`）
 
-**Variables:**
-- camelCase (e.g., `newTodo`, `currentPage`, `currentPriority`)
-- Constants in camelCase or UPPER_SNAKE_CASE for truly constant values
-- Boolean variables prefixed with `is`, `has`, `can`, or `show` (e.g., `isLoggedIn`, `canAdd`, `showUser`)
+**变量：**
+- camelCase（如 `newTodo`、`currentPage`、`currentPriority`）
+- 常量使用 camelCase 或 UPPER_SNAKE_CASE（真正不变的常量）
+- 布尔变量以 `is`、`has`、`can` 或 `show` 开头（如 `isLoggedIn`、`canAdd`、`showUser`）
 
-**Types:**
-- Not explicitly defined (no TypeScript in this project)
-- Props use Object notation with `type` and `required` keys
+**类型：**
+- 未明确定义（项目未使用 TypeScript）
+- Props 使用对象写法，附带 `type` 和 `required` 键
 
-## Code Style
+## 代码风格
 
-**Formatting:**
-- Tool used: None detected (no Prettier, ESLint, or Biome config files)
-- Manual formatting with consistent 2-space indentation
-- Template literals for string interpolation
+**格式化：**
+- 未检测到格式化工具（无 Prettier、ESLint、Biome 配置文件）
+- 统一 2 空格缩进，手动格式化
+- 模板字符串用于字符串插值
 
-**Linting:**
-- Tool used: None detected
-- No `.eslintrc`, `.prettierrc`, or `eslint.config.*` files found
+**代码检查：**
+- 未检测到代码检查工具
+- 无 `.eslintrc`、`.prettierrc` 或 `eslint.config.*` 文件
 
-**Vue SFC Structure:**
+**Vue SFC 结构：**
 ```vue
 <script setup>
-// Imports first
+// 先写 import
 import { ref, computed } from 'vue'
 
-// Props and emits
+// Props 和 emits
 const props = defineProps({ ... })
 const emit = defineEmits(['event'])
 
-// Reactive state
+// 响应式状态
 const state = ref(initialValue)
 
-// Computed
+// 计算属性
 const derived = computed(() => { ... })
 
-// Methods
+// 方法
 function handler() { ... }
 
-// Lifecycle
+// 生命周期
 onMounted(() => { ... })
 </script>
 
 <template>
-  <!-- HTML with Vue directives -->
+  <!-- HTML + Vue 指令 -->
 </template>
 
 <style scoped>
-/* Component-scoped styles */
+/* 组件级样式 */
 </style>
 ```
 
-## Import Organization
+## Import 组织顺序
 
-**Order:**
-1. Vue core imports (`ref`, `computed`, `onMounted`, etc.)
-2. Vue Router imports (`useRouter`, `useRoute`)
-3. Pinia store imports (`useAuthStore`, `useTodosStore`)
-4. UI library imports (Element Plus: `ElMessage`, `ElButton`, etc.)
-5. Local component imports (`./components/`, `../stores/`, `../api/`)
-6. Mock imports (conditional, inside functions)
+1. Vue 核心 import（`ref`、`computed`、`onMounted` 等）
+2. Vue Router import（`useRouter`、`useRoute`）
+3. Pinia store import（`useAuthStore`、`useTodosStore`）
+4. UI 库 import（Element Plus：`ElMessage`、`ElButton` 等）
+5. 本地组件 import（`./components/`、`../stores/`、`../api/`）
+6. Mock import（条件引入，函数内部使用）
 
-**Path Aliases:**
-- No path aliases configured
-- Relative paths used throughout (`../stores/`, `./components/`)
+**路径别名：**
+- 未配置路径别名
+- 全部使用相对路径（`../stores/`、`./components/`）
 
-## Error Handling
+## 错误处理
 
-**Patterns:**
+**模式：**
 
-1. **Try-catch in async functions:**
+1. **异步函数中的 try-catch：**
 ```javascript
 async function loadFromApi() {
   loading.value = true
@@ -100,7 +99,7 @@ async function loadFromApi() {
 }
 ```
 
-2. **Axios interceptors for API errors** (`src/api/http.js`):
+2. **Axios 拦截器处理 API 错误**（`src/api/http.js`）：
 ```javascript
 http.interceptors.response.use(
   (response) => {
@@ -120,10 +119,10 @@ http.interceptors.response.use(
 )
 ```
 
-3. **Vue global error handler** (`src/main.js`):
+3. **Vue 全局错误处理器**（`src/main.js`）：
 ```javascript
 app.config.errorHandler = (err, instance, info) => {
-  console.error('[Vue Global Error]', err, info)
+  console.error('[Vue 全局错误]', err, info)
   const msg = err?.message || '页面出错了'
   if (msg.includes('Failed to fetch') || msg.includes('Network')) {
     ElMessage.error('网络错误：请确认 Spring Boot 后端是否在 8080 运行')
@@ -133,58 +132,58 @@ app.config.errorHandler = (err, instance, info) => {
 }
 ```
 
-## Logging
+## 日志
 
-**Framework:** console.log/console.error (no logging library)
+**框架：** console.log/console.error（无日志库）
 
-**Patterns:**
-- Console only for development debugging
-- Comments document intent (Java comparisons in Chinese)
-- No runtime logging for production
+**模式：**
+- 仅开发调试用 console
+- 注释说明意图（Java 对照，供学习 Vue 的 Java 开发者参考）
+- 生产环境无运行时日志
 
-## Comments
+## 注释
 
-**When to Comment:**
-- Explain Java Spring Boot对照 for Java developers learning Vue
-- Document API integration points
-- Explain business logic transformations (field mapping, etc.)
+**何时写注释：**
+- 解释 Java Spring Boot 对照，供 Java 开发者学习 Vue
+- 记录 API 集成点
+- 解释业务逻辑转换（字段映射等）
 
-**Examples:**
+**示例：**
 ```javascript
 // D7 新建：Pinia 认证 store
 // Java 对照：类似 Spring Security 的 SecurityContextHolder，跨组件共享登录态
 ```
 
-**JSDoc/TSDoc:**
-- Not used (no TypeScript)
+**JSDoc/TSDoc：**
+- 未使用（无 TypeScript）
 
-## Function Design
+## 函数设计
 
-**Size:** Keep under 30 lines; single responsibility per function
+**大小：** 控制在 30 行以内；每个函数单一职责
 
-**Parameters:**
-- Props via `defineProps` object notation
-- Function parameters explicit and named
-- Maximum 3-4 parameters before grouping into object
+**参数：**
+- Props 通过 `defineProps` 对象写法
+- 函数参数显式命名
+- 超过 3-4 个参数时封装为对象
 
-**Return Values:**
-- Async functions return Promises
-- Computed properties for derived state
-- Store actions return necessary data
+**返回值：**
+- 异步函数返回 Promise
+- 计算属性用于派生状态
+- Store actions 返回必要数据
 
-## Module Design
+## 模块设计
 
-**Exports:**
-- Named exports: `export function fetchTodos() { ... }`
-- Store exports: `export const useTodosStore = defineStore(...)`
+**导出：**
+- 命名导出：`export function fetchTodos() { ... }`
+- Store 导出：`export const useTodosStore = defineStore(...)`
 
-**Barrel Files:**
-- No barrel files (index.js re-exports not used)
-- Direct imports to specific modules
+**Barrel 文件：**
+- 不使用 barrel 文件（不使用 index.js 重新导出）
+- 直接 import 具体模块
 
-## Component Patterns
+## 组件模式
 
-**Props:**
+**Props：**
 ```javascript
 defineProps({
   todo: { type: Object, required: true },
@@ -194,14 +193,14 @@ defineProps({
 })
 ```
 
-**Emits:**
+**Emits：**
 ```javascript
 const emit = defineEmits(['toggle', 'delete', 'view'])
 ```
 
-**v-model:**
+**v-model：**
 ```javascript
-// In child component
+// 子组件
 const props = defineProps({ modelValue: String })
 const emit = defineEmits(['update:modelValue'])
 const text = computed({
@@ -210,9 +209,9 @@ const text = computed({
 })
 ```
 
-## State Management (Pinia)
+## 状态管理（Pinia）
 
-**Store Structure:**
+**Store 结构：**
 ```javascript
 export const useTodosStore = defineStore('todos', () => {
   // State
@@ -231,4 +230,4 @@ export const useTodosStore = defineStore('todos', () => {
 
 ---
 
-*Convention analysis: 2026-09-29*
+*规范分析：2026-09-29*

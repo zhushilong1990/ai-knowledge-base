@@ -1,160 +1,160 @@
-# Codebase Structure
+# 代码库结构
 
-**Analysis Date:** 2026-09-29
+**分析日期：** 2026-09-29
 
-## Directory Layout
+## 目录布局
 
 ```
 D:\code\fullstack-learning\
-├── CLAUDE.md              # Project instructions and roadmap
-├── HANDOFF.md             # Cross-session progress handoff
-├── docs\                  # Teaching materials and exercises
-│   ├── main.mjs           # ESM module demo entry
-│   ├── utils.mjs          # ESM utility functions
-│   ├── day1-*.mjs         # Day 1 exercises
-│   ├── day1-*.html        # Day 1 HTML demos
-│   └── day2-*.html        # Day 2 HTML demos
-├── vue-counter\           # Main Vue 3 SPA demo (Week 1-2)
-│   ├── index.html         # HTML entry point
-│   ├── package.json       # Dependencies and scripts
-│   ├── vite.config.js      # Vite configuration with proxy
+├── CLAUDE.md              # 项目说明和路线图
+├── HANDOFF.md             # 跨会话进度交接
+├── docs\                  # 教学材料和练习
+│   ├── main.mjs           # ESM 模块演示入口
+│   ├── utils.mjs          # ESM 工具函数
+│   ├── day1-*.mjs         # 第 1 天练习
+│   ├── day1-*.html        # 第 1 天 HTML 演示
+│   └── day2-*.html        # 第 2 天 HTML 演示
+├── vue-counter\           # 主 Vue 3 SPA 演示（第 1-2 周）
+│   ├── index.html         # HTML 入口
+│   ├── package.json       # 依赖和脚本
+│   ├── vite.config.js      # Vite 配置（含代理）
 │   └── src\
-│       ├── main.js         # Vue app initialization
-│       ├── App.vue         # Root component with nav
+│       ├── main.js         # Vue 应用初始化
+│       ├── App.vue         # 根组件，含导航
 │       ├── router\
-│       │   └── index.js    # Vue Router config + guards
+│       │   └── index.js    # Vue Router 配置 + 守卫
 │       ├── stores\
-│       │   ├── auth.js     # Auth state (Pinia)
-│       │   └── todos.js    # Todos state + field mapping
+│       │   ├── auth.js     # 认证状态（Pinia）
+│       │   └── todos.js    # Todos 状态 + 字段映射
 │       ├── api\
-│       │   ├── http.js     # Axios instance + interceptors
-│       │   ├── auth.js     # Auth API calls
-│       │   └── todos.js    # Todos API calls
+│       │   ├── http.js     # Axios 实例 + 拦截器
+│       │   ├── auth.js     # 认证 API 调用
+│       │   └── todos.js    # Todos API 调用
 │       ├── mock\
-│       │   └── api.js      # Mock API for offline dev
+│       │   └── api.js      # 离线开发用 Mock API
 │       ├── views\
-│       │   ├── Home.vue        # Landing page
-│       │   ├── Login.vue       # Login page
-│       │   ├── TodoList.vue    # List with pagination
-│       │   ├── TodoDetail.vue  # Detail view
-│       │   ├── TodoFormPage.vue # Create/edit form
-│       │   ├── Stats.vue       # ECharts visualization
-│       │   └── NotFound.vue    # 404 page
+│       │   ├── Home.vue        # 落地页
+│       │   ├── Login.vue       # 登录页
+│       │   ├── TodoList.vue    # 列表，含分页
+│       │   ├── TodoDetail.vue  # 详情页
+│       │   ├── TodoFormPage.vue # 创建/编辑表单
+│       │   ├── Stats.vue       # ECharts 可视化
+│       │   └── NotFound.vue    # 404 页面
 │       └── components\
-│           ├── TodoItem.vue         # Single todo row
-│           ├── TodoForm.vue         # Todo form component
-│           ├── TodoStats.vue        # Stats display
-│           └── TodoDeleteConfirm.vue # Delete confirmation
-└── uni-app-demo\            # Cross-platform demo (Week 2+)
-    ├── index.html           # HTML entry (not used in uni-app)
-    ├── main.js              # uni-app entry point
-    ├── App.vue              # Root component
-    ├── manifest.json        # App configuration
-    ├── pages.json           # Page routing config
+│           ├── TodoItem.vue         # 单条 todo 行
+│           ├── TodoForm.vue         # Todo 表单组件
+│           ├── TodoStats.vue        # 统计展示
+│           └── TodoDeleteConfirm.vue # 删除确认
+└── uni-app-demo\            # 跨平台演示（第 2 周+）
+    ├── index.html           # HTML 入口（uni-app 中未使用）
+    ├── main.js              # uni-app 入口
+    ├── App.vue              # 根组件
+    ├── manifest.json        # App 配置
+    ├── pages.json           # 页面路由配置
     ├── mock\
-    │   ├── index.js         # Mock interceptor setup
-    │   └── api.js           # Mock API functions
+    │   ├── index.js         # Mock 拦截器设置
+    │   └── api.js           # Mock API 函数
     └── pages\
         ├── index\
-        │   └── index.vue    # Home page
+        │   └── index.vue    # 首页
         └── todo\
-            ├── list.vue     # Todo list page
-            └── detail.vue   # Todo detail page
+            ├── list.vue     # Todo 列表页
+            └── detail.vue   # Todo 详情页
 ```
 
-## Directory Purposes
+## 目录用途
 
-**`vue-counter/`:**
-- Purpose: Primary learning demo - full Vue 3 SPA with routing, state, API integration
-- Contains: Vite project with Vue 3, Element Plus, Pinia, Vue Router, Axios, ECharts
-- Key files: `src/main.js`, `src/router/index.js`, `src/stores/*.js`, `src/api/*.js`
+**`vue-counter/`：**
+- 用途：主要学习演示 — 完整 Vue 3 SPA，含路由、状态、API 集成
+- 内容：Vite 项目，Vue 3、Element Plus、Pinia、Vue Router、Axios、ECharts
+- 关键文件：`src/main.js`、`src/router/index.js`、`src/stores/*.js`、`src/api/*.js`
 
-**`uni-app-demo/`:**
-- Purpose: Cross-platform variant demonstrating H5 + WeChat Mini Program + App from single codebase
-- Contains: uni-app project structure with `pages.json` routing, `manifest.json` platform config
-- Key files: `main.js`, `pages.json`, `mock/index.js`
+**`uni-app-demo/`：**
+- 用途：跨平台变体，展示从同一代码库构建 H5 + 微信小程序 + App
+- 内容：uni-app 项目结构，含 `pages.json` 路由、`manifest.json` 平台配置
+- 关键文件：`main.js`、`pages.json`、`mock/index.js`
 
-**`docs/`:**
-- Purpose: Standalone teaching exercises without build step
-- Contains: ESM `.mjs` files, HTML demos, JavaScript exercises
-- Key files: `main.mjs`, `utils.mjs`, `day1-*.html`
+**`docs/`：**
+- 用途：无构建步骤的独立教学练习
+- 内容：ESM `.mjs` 文件、HTML 演示、JavaScript 练习
+- 关键文件：`main.mjs`、`utils.mjs`、`day1-*.html`
 
-## Key File Locations
+## 关键文件位置
 
-**Entry Points:**
-- `vue-counter/index.html`: HTML shell that mounts Vue app (`<div id="app">`)
-- `vue-counter/src/main.js`: Vue app initialization (registers plugins, mounts)
-- `uni-app-demo/main.js`: uni-app bootstrap (creates SSR app, sets up mock)
+**入口点：**
+- `vue-counter/index.html`：HTML 壳，挂载 Vue 应用（`<div id="app">`）
+- `vue-counter/src/main.js`：Vue 应用初始化（注册插件、挂载）
+- `uni-app-demo/main.js`：uni-app 引导（创建 SSR 应用，设置 mock）
 
-**Configuration:**
-- `vue-counter/vite.config.js`: Vite config with `/api` proxy to backend
-- `vue-counter/package.json`: Vue 3, Element Plus, Pinia, Vue Router, Axios, ECharts
-- `uni-app-demo/manifest.json`: Platform-specific configs (WeChat appid, permissions)
-- `uni-app-demo/pages.json`: Page routes and navigation bar titles
+**配置：**
+- `vue-counter/vite.config.js`：Vite 配置，`/api` 代理到后端
+- `vue-counter/package.json`：Vue 3、Element Plus、Pinia、Vue Router、Axios、ECharts
+- `uni-app-demo/manifest.json`：平台特定配置（微信 appid、权限）
+- `uni-app-demo/pages.json`：页面路由和导航栏标题
 
-**Core Logic:**
-- `vue-counter/src/stores/auth.js`: Auth store (token, user, login, logout)
-- `vue-counter/src/stores/todos.js`: Todos store (CRUD, pagination, field mapping)
-- `vue-counter/src/api/http.js`: Axios instance with interceptors
-- `vue-counter/src/router/index.js`: Router with auth guard
+**核心逻辑：**
+- `vue-counter/src/stores/auth.js`：认证 store（token、user、login、logout）
+- `vue-counter/src/stores/todos.js`：Todos store（CRUD、分页、字段映射）
+- `vue-counter/src/api/http.js`：Axios 实例，含拦截器
+- `vue-counter/src/router/index.js`：带认证守卫的路由
 
-**Testing:**
-- No formal test directory - learning demos with manual L1-L4 verification
+**测试：**
+- 无正式测试目录 — 学习演示，手动 L1-L4 验证
 
-## Naming Conventions
+## 命名约定
 
-**Files:**
-- Vue components: PascalCase (`TodoList.vue`, `TodoDetail.vue`)
-- JavaScript modules: camelCase (`auth.js`, `todos.js`, `http.js`)
-- Page directories (uni-app): lowercase (`pages/todo/list.vue`)
+**文件：**
+- Vue 组件：PascalCase（`TodoList.vue`、`TodoDetail.vue`）
+- JavaScript 模块：camelCase（`auth.js`、`todos.js`、`http.js`）
+- 页面目录（uni-app）：小写（`pages/todo/list.vue`）
 
-**Directories:**
-- `src/stores/`: Pinia stores
-- `src/api/`: API modules
-- `src/views/`: Page components
-- `src/components/`: Reusable components
-- `pages/`: uni-app page components
-- `mock/`: Mock API modules
+**目录：**
+- `src/stores/`：Pinia stores
+- `src/api/`：API 模块
+- `src/views/`：页面组件
+- `src/components/`：可复用组件
+- `pages/`：uni-app 页面组件
+- `mock/`：Mock API 模块
 
-**Variables/Functions:**
-- camelCase: `fetchTodos`, `createTodo`, `loadFromApi`
-- Store actions: camelCase verbs: `login`, `logout`, `loadFromApi`, `setPage`
-- Store state: camelCase nouns: `token`, `user`, `todos`, `currentPage`
+**变量/函数：**
+- camelCase：`fetchTodos`、`createTodo`、`loadFromApi`
+- Store actions：camelCase 动词：`login`、`logout`、`loadFromApi`、`setPage`
+- Store state：camelCase 名词：`token`、`user`、`todos`、`currentPage`
 
-## Where to Add New Code
+## 新增代码的位置
 
-**New Feature (vue-counter):**
-- Page component: `vue-counter/src/views/NewFeature.vue`
-- Reusable component: `vue-counter/src/components/NewFeatureItem.vue`
-- Store (if needed): `vue-counter/src/stores/newFeature.js`
-- API (if needed): `vue-counter/src/api/newFeature.js`
-- Route: Add to `vue-counter/src/router/index.js` routes array
+**新功能（vue-counter）：**
+- 页面组件：`vue-counter/src/views/NewFeature.vue`
+- 可复用组件：`vue-counter/src/components/NewFeatureItem.vue`
+- Store（需要时）：`vue-counter/src/stores/newFeature.js`
+- API（需要时）：`vue-counter/src/api/newFeature.js`
+- 路由：添加到 `vue-counter/src/router/index.js` 的 routes 数组
 
-**New Component/Module:**
-- Implementation: Create in appropriate `src/` subdirectory
-- For shared utilities: Add to existing file or create new module in `src/` root
+**新组件/模块：**
+- 实现：在适当的 `src/` 子目录中创建
+- 共享工具：在现有文件或 `src/` 根目录新建模块
 
-**Utilities:**
-- Shared helpers: Create in `vue-counter/src/utils/` (not currently present)
-- ESM utilities: Add to `docs/utils.mjs`
+**工具类：**
+- 共享帮助函数：在 `vue-counter/src/utils/` 创建（目前不存在）
+- ESM 工具：添加到 `docs/utils.mjs`
 
-## Special Directories
+## 特殊目录
 
-**`vue-counter/node_modules/`:**
-- Purpose: npm dependencies (not committed per .gitignore)
-- Generated: Yes (via `npm install`)
-- Committed: No
+**`vue-counter/node_modules/`：**
+- 用途：npm 依赖（按 .gitignore 不提交）
+- 生成方式：通过 `npm install`
+- 提交：否
 
-**`uni-app-demo/unpackage/`:**
-- Purpose: Build output for each platform
-- Generated: Yes (via `npm run dev:mp-weixin` etc.)
-- Committed: No
+**`uni-app-demo/unpackage/`：**
+- 用途：各平台构建产物
+- 生成方式：通过 `npm run dev:mp-weixin` 等
+- 提交：否
 
-**`.claude/`:**
-- Purpose: Claude Code settings and memory
-- Contains: `settings.local.json`, `memory/MEMORY.md`
-- Generated: Claude Code creates automatically
+**`.claude/`：**
+- 用途：Claude Code 设置和记忆
+- 内容：`settings.local.json`、`memory/MEMORY.md`
+- 生成方式：Claude Code 自动创建
 
 ---
 
-*Structure analysis: 2026-09-29*
+*结构分析：2026-09-29*

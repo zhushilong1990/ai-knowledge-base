@@ -1,230 +1,230 @@
-# Feature Landscape: RAG Knowledge Base Q&A Application
+# 功能全景：RAG 知识库问答应用
 
-**Domain:** AI-powered knowledge base with RAG (Retrieval-Augmented Generation) Q&A
-**Researched:** 2026-09-29
-**Confidence:** MEDIUM
-
----
-
-## Table of Contents
-
-1. [Document Management](#1-document-management)
-2. [Knowledge Base](#2-knowledge-base)
-3. [Chat/QA with RAG](#3-chatqa-with-rag)
-4. [User Management](#4-user-management)
-5. [History](#5-history)
+**领域：** AI 驱动的知识库 RAG（检索增强生成）问答
+**调研时间：** 2026-09-29
+**置信度：** 中
 
 ---
 
-## 1. Document Management
+## 目录
 
-### Table Stakes (Must-Have)
+1. [文档管理](#1-文档管理)
+2. [知识库](#2-知识库)
+3. [聊天问答和 RAG](#3-聊天qa和-rag)
+4. [用户管理](#4-用户管理)
+5. [历史记录](#5-历史记录)
 
-| Feature | Why Expected | Complexity |
+---
+
+## 1. 文档管理
+
+### 基础功能（必须有）
+
+| 功能 | 为什么被期待 | 复杂度 |
 |---------|--------------|------------|
-| File upload (PDF, DOCX, TXT, MD) | Core input mechanism | Low |
-| Text extraction | Parsing raw content from files | Medium |
-| Chunking (fixed-size, token-based) | Breaks documents into LLM-digestible pieces | Medium |
-| Chunk metadata (source, page, position) | Enables citation and traceability | Low |
-| Vector embedding generation | Core RAG retrieval foundation | Medium |
-| Upload progress indicator | UX feedback during processing | Low |
-| File type validation | Prevents unsupported format errors | Low |
-| File size limits display | Sets user expectations upfront | Low |
+| 文件上传（PDF、DOCX、TXT、MD）| 核心输入机制 | 低 |
+| 文本提取 | 从文件解析原始内容 | 中 |
+| 分块（固定大小、基于 token）| 将文档切成 LLM 可消化的小块 | 中 |
+| 块元数据（来源、页码、位置）| 支持引用和可追溯性 | 低 |
+| 向量 embedding 生成 | 核心 RAG 检索基础 | 中 |
+| 上传进度指示器 | 处理期间的 UX 反馈 | 低 |
+| 文件类型校验 | 防止不支持格式的错误 | 低 |
+| 文件大小限制提示 | 提前设定用户预期 | 低 |
 
-### Differentiators
+### 差异化功能
 
-| Feature | Value Proposition | Complexity |
+| 功能 | 价值主张 | 复杂度 |
 |---------|-------------------|------------|
-| OCR for scanned PDFs | Unlocks legacy paper documents | High |
-| Structure-aware chunking (headings, paragraphs) | 20-30% better retrieval than fixed-size | Medium |
-| Semantic chunking (topic boundaries) | More meaningful context windows | High |
-| Incremental re-indexing | Avoids full rebuild on document updates | Medium |
-| Duplicate detection | Prevents redundant storage and retrieval | Medium |
-| Access control metadata at ingestion | Row-level security per document | Medium |
-| Batch upload with queue processing | Handles bulk uploads gracefully | Medium |
-| Table and image extraction | Preserves structured data context | High |
-| Web crawler ingestion | Imports from URLs/Confluence/Notion | High |
+| 扫描 PDF 的 OCR | 解锁遗留纸质文档 | 高 |
+| 结构感知分块（标题、段落）| 比固定大小检索精度高 20-30% | 中 |
+| 语义分块（主题边界）| 更有意义的内容窗口 | 高 |
+| 增量重新索引 | 避免文档更新时全量重建 | 中 |
+| 重复检测 | 防止冗余存储和检索 | 中 |
+| 摄入时访问控制元数据 | 行级文档安全 | 中 |
+| 批量上传和队列处理 | 优雅处理批量上传 | 中 |
+| 表格和图片提取 | 保留结构化数据上下文 | 高 |
+| Web 爬虫摄入 | 从 URL/Confluence/Notion 导入 | 高 |
 
-### Anti-Features
+### 反功能
 
-| Anti-Feature | Why Avoid | What to Do Instead |
+| 反功能 | 为什么避免 | 替代方案 |
 |--------------|-----------|--------------------|
-| Unlimited file sizes | Vector DB bloat, timeout failures | Enforce 10-50MB limits with clear messaging |
-| All file formats | Maintenance burden, edge case handling | Support top 5 formats (PDF, DOCX, TXT, MD, CSV) |
-| Automatic language detection | Mixed results in practice | Let user specify or default to English |
+| 无限文件大小 | 向量数据库膨胀，超时失败 | 强制 10-50MB 限制并清晰提示 |
+| 所有文件格式 | 维护负担，边缘情况处理 | 支持前 5 种格式（PDF、DOCX、TXT、MD、CSV）|
+| 自动语言检测 | 实践中效果参差不齐 | 让用户指定或默认英语 |
 
 ---
 
-## 2. Knowledge Base
+## 2. 知识库
 
-### Table Stakes (Must-Have)
+### 基础功能（必须有）
 
-| Feature | Why Expected | Complexity |
+| 功能 | 为什么被期待 | 复杂度 |
 |---------|--------------|------------|
-| Create knowledge base | Naming a collection of documents | Low |
-| List knowledge bases | See all collections user owns | Low |
-| Delete knowledge base | Remove unwanted collections | Low |
-| Document count display | Shows size/scope at a glance | Low |
-| Search within knowledge base | Find specific content across docs | Medium |
+| 创建知识库 | 为文档集合命名 | 低 |
+| 列出知识库 | 查看用户拥有的所有集合 | 低 |
+| 删除知识库 | 移除不需要的集合 | 低 |
+| 文档计数展示 | 一目了然显示规模/范围 | 低 |
+| 知识库内搜索 | 在文档间查找特定内容 | 中 |
 
-### Differentiators
+### 差异化功能
 
-| Feature | Value Proposition | Complexity |
+| 功能 | 价值主张 | 复杂度 |
 |---------|-------------------|------------|
-| Knowledge base sharing (internal) | Team collaboration on same corpus | Medium |
-| Access level per knowledge base | Admin vs viewer roles | Medium |
-| Document tagging/categorization | Organize and filter by topic | Medium |
-| Version history per document | Track changes and rollback | High |
-| Merge knowledge bases | Combine collections without re-upload | Medium |
+| 知识库内部共享 | 团队协作同一语料库 | 中 |
+| 每个知识库的访问级别 | 管理员 vs 查看者角色 | 中 |
+| 文档标签/分类 | 按主题组织和过滤 | 中 |
+| 每个文档的版本历史 | 跟踪变更和回滚 | 高 |
+| 合并知识库 | 不重新上传即可合并集合 | 中 |
 
-### Anti-Features
+### 反功能
 
-| Anti-Feature | Why Avoid | What to Do Instead |
+| 反功能 | 为什么避免 | 替代方案 |
 |--------------|-----------|--------------------|
-| Unlimited knowledge bases per user | Noisy, hard to manage | Cap at 20 with upgrade path |
-| Auto-creation of knowledge base on upload | Forces taxonomy before user understands value | Prompt user to select or create on first upload |
+| 每个用户无限知识库 | 嘈杂，难以管理 | 上限 20 个并提供升级路径 |
+| 上传时自动创建知识库 | 在用户理解价值前强制分类学 | 提示用户在第一次上传时选择或创建 |
 
 ---
 
-## 3. Chat/QA with RAG
+## 3. 聊天问答和 RAG
 
-### Table Stakes (Must-Have)
+### 基础功能（必须有）
 
-| Feature | Why Expected | Complexity |
+| 功能 | 为什么被期待 | 复杂度 |
 |---------|--------------|------------|
-| Text input for questions | Core interaction method | Low |
-| Relevant chunk retrieval (top-K) | Core RAG retrieval | Medium |
-| Context injection into LLM prompt | Augments LLM with retrieved knowledge | Medium |
-| Streaming response (SSE) | Real-time answer delivery | Medium |
-| Source citations in answer | Builds trust, enables verification | Medium |
-| New conversation | Start fresh without history contamination | Low |
-| Loading state during retrieval | Feedback that system is working | Low |
+| 文本输入提问 | 核心交互方式 | 低 |
+| 相关块检索（Top-K）| 核心 RAG 检索 | 中 |
+| 上下文注入 LLM 提示词 | 用检索到的知识增强 LLM | 中 |
+| 流式响应（SSE）| 实时答案交付 | 中 |
+| 答案中的来源引用 | 建立信任，支持验证 | 中 |
+| 新对话 | 不受历史污染的开始 | 低 |
+| 检索期间的加载状态 | 系统正在工作的反馈 | 低 |
 
-### Differentiators
+### 差异化功能
 
-| Feature | Value Proposition | Complexity |
+| 功能 | 价值主张 | 复杂度 |
 |---------|-------------------|------------|
-| Hybrid search (vector + keyword/BM25) | 10-15% accuracy improvement over vector-only | Medium |
-| Reranking with cross-encoder | Better precision on top results | High |
-| Conversation context preservation | Multi-turn coherence | Medium |
-| Select specific knowledge bases to query | Targeted vs broad retrieval | Low |
-| Adjustable retrieval count (top-K) | Tune recall vs precision | Low |
-| Prompt template customization | Domain-specific instruction tuning | Medium |
-| Token usage display | Transparency and cost awareness | Low |
-| Feedback mechanism (thumbs up/down) | Implicit evaluation data for improvements | Low |
-| Query reformulation suggestions | Helps users ask better questions | Medium |
-| Conversation branching | Explore alternative paths | Medium |
+| 混合搜索（向量 + 关键词/BM25）| 比纯向量精度提升 10-15% | 中 |
+| 用 cross-encoder 重排 | top 结果精度更好 | 高 |
+| 对话上下文保留 | 多轮连贯性 | 中 |
+| 选择特定知识库查询 | 定向 vs 广泛检索 | 低 |
+| 可调检索数量（Top-K）| 平衡召回率和精度 | 低 |
+| 提示词模板自定义 | 领域特定指令调优 | 中 |
+| Token 使用量展示 | 透明度和成本意识 | 低 |
+| 反馈机制（点赞/点踩）| 改进的隐式评估数据 | 低 |
+| 查询重构建议 | 帮助用户更好提问 | 中 |
+| 对话分支 | 探索替代路径 | 中 |
 
-### Anti-Features
+### 反功能
 
-| Anti-Feature | Why Avoid | What to Do Instead |
+| 反功能 | 为什么避免 | 替代方案 |
 |--------------|-----------|--------------------|
-| No retrieval (LLM-only) | Hallucination risk, no grounding | Always retrieve; provide toggle to disable if needed |
-| All chunks returned | Information overload, diluted context | Limit to top 5-10 with reranking |
-| LLM generates without context match | Answers not anchored in documents | Show "No relevant documents found" gracefully |
+| 无检索（纯 LLM）| 幻觉风险，无 grounding | 始终检索；需要时提供开关 |
+| 返回所有块 | 信息过载，上下文稀释 | 限制 top 5-10 并重排 |
+| 无上下文匹配时 LLM 仍生成 | 答案未锚定在文档中 | 优雅显示"未找到相关文档" |
 
 ---
 
-## 4. User Management
+## 4. 用户管理
 
-### Table Stakes (Must-Have)
+### 基础功能（必须有）
 
-| Feature | Why Expected | Complexity |
+| 功能 | 为什么被期待 | 复杂度 |
 |---------|--------------|------------|
-| User registration (email/password) | Basic account creation | Low |
-| User login with JWT access token | Stateless authentication | Low |
-| JWT refresh token | Prolong sessions without re-login | Medium |
-| Logout (token invalidation) | Security on shared devices | Low |
-| Password hashing (bcrypt) | Security best practice | Low |
-| Protected API routes | Enforce authentication | Low |
+| 用户注册（邮箱/密码）| 基本账户创建 | 低 |
+| 用户登录 + JWT access token | 无状态认证 | 低 |
+| JWT 刷新 token | 延长会话无需重新登录 | 中 |
+| 登出（token 失效）| 共享设备上的安全 | 低 |
+| 密码哈希（bcrypt）| 安全最佳实践 | 低 |
+| 受保护 API 路由 | 强制认证 | 低 |
 
-### Differentiators
+### 差异化功能
 
-| Feature | Value Proposition | Complexity |
+| 功能 | 价值主张 | 复杂度 |
 |---------|-------------------|------------|
-| Guest/temporary access (UUID session) | Try-before-sign-up experience | Medium |
-| OAuth 2.0 (Google) | Passwordless convenience | Medium |
-| Password reset via email | Account recovery flow | Medium |
-| Role-based access (admin, member, viewer) | Team hierarchy support | Medium |
-| Session management (active sessions list) | Security transparency | Low |
-| Login activity log | Anomaly detection | Medium |
-| API key management | Programmatic access for developers | Medium |
+| 访客/临时访问（UUID 会话）| 先体验后注册 | 中 |
+| OAuth 2.0（Google）| 无密码便利 | 中 |
+| 邮箱密码重置 | 账户恢复流程 | 中 |
+| 基于角色的访问（管理员、成员、查看者）| 团队层级支持 | 中 |
+| 会话管理（活跃会话列表）| 安全透明度 | 低 |
+| 登录活动日志 | 异常检测 | 中 |
+| API 密钥管理 | 开发者程序化访问 | 中 |
 
-### Anti-Features
+### 反功能
 
-| Anti-Feature | Why Avoid | What to Do Instead |
+| 反功能 | 为什么避免 | 替代方案 |
 |--------------|-----------|--------------------|
-| Social login without email verification | Disposable accounts abuse | Require email verification regardless of OAuth |
-| Long-lived refresh tokens (> 7 days) | Extended session risk on device theft | 7-day max with re-authentication prompt |
+| 无邮箱验证的社交登录 | 一次性账户滥用 | 无论 OAuth 如何都要求邮箱验证 |
+| 长期刷新 token（> 7 天）| 设备被盗时延长会话风险 | 最长 7 天并提示重新认证 |
 
 ---
 
-## 5. History
+## 5. 历史记录
 
-### Table Stakes (Must-Have)
+### 基础功能（必须有）
 
-| Feature | Why Expected | Complexity |
+| 功能 | 为什么被期待 | 复杂度 |
 |---------|--------------|------------|
-| Conversation history list | Resume prior sessions | Low |
-| View past questions and answers | Reference previous research | Low |
-| Delete conversation | Privacy and cleanup | Low |
-| Delete message within conversation | Remove specific entries | Low |
+| 对话历史列表 | 恢复之前的会话 | 低 |
+| 查看过去的问答 | 参考之前的研究 | 低 |
+| 删除对话 | 隐私和清理 | 低 |
+| 删除对话中的单条消息 | 移除特定条目 | 低 |
 
-### Differentiators
+### 差异化功能
 
-| Feature | Value Proposition | Complexity |
+| 功能 | 价值主张 | 复杂度 |
 |---------|-------------------|------------|
-| Conversation search | Find specific Q&A across history | Medium |
-| Auto-generated conversation titles | Quick identification without browsing | Medium |
-| Document upload history | Track which docs were processed | Low |
-| Conversation branching | Explore alternative answer paths | Medium |
-| Export conversation (PDF/MD) | Share or archive sessions | Medium |
-| Automatic cleanup (30+ days) | GDPR compliance, storage management | Low |
-| Cross-device sync | Access history from any device | Medium |
-| Star/bookmark conversations | Pin important sessions | Low |
+| 对话搜索 | 在历史中查找特定问答 | 中 |
+| 自动生成的对话标题 | 无需浏览即可快速识别 | 中 |
+| 文档上传历史 | 跟踪处理了哪些文档 | 低 |
+| 对话分支 | 探索替代答案路径 | 中 |
+| 导出对话（PDF/MD）| 分享或归档会话 | 中 |
+| 自动清理（30+ 天）| GDPR 合规，存储管理 | 低 |
+| 跨设备同步 | 从任何设备访问历史 | 中 |
+| 收藏/书签对话 | 固定重要会话 | 低 |
 
-### Anti-Features
+### 反功能
 
-| Anti-Feature | Why Avoid | What to Do Instead |
+| 反功能 | 为什么避免 | 替代方案 |
 |--------------|-----------|--------------------|
-| Unlimited history retention | Storage costs, GDPR risk | Cap at 90 days or 500 conversations |
-| No delete option | Privacy violation, regulatory risk | Always provide delete; hard delete after grace period |
+| 无限历史保留 | 存储成本，GDPR 风险 | 上限 90 天或 500 个对话 |
+| 无删除选项 | 隐私侵犯，监管风险 | 始终提供删除；宽限期后硬删除 |
 
 ---
 
-## Feature Dependencies
+## 功能依赖
 
 ```
-User Registration → Login → JWT Token
+用户注册 → 登录 → JWT Token
                                     ↓
-Document Upload → Chunking → Embedding → Indexing
+文档上传 → 分块 → Embedding → 索引
                                               ↓
-                                    Knowledge Base Creation ← Document Association
+                                    知识库创建 ← 文档关联
                                               ↓
-Chat Query → Retrieval → Context Injection → LLM Response → Conversation History
+聊天查询 → 检索 → 上下文注入 → LLM 响应 → 对话历史
 ```
 
 ---
 
-## MVP Recommendation
+## MVP 推荐
 
-**Prioritize in this order:**
+**按此优先级排序：**
 
-1. **Document upload + chunking + indexing** — Core input pipeline
-2. **Knowledge base CRUD** — Organizational layer
-3. **Chat/QA with retrieval** — Core value delivery
-4. **JWT auth + user management** — Access control foundation
-5. **Conversation history** — Continuity feature
+1. **文档上传 + 分块 + 索引** — 核心输入管道
+2. **知识库 CRUD** — 组织层
+3. **聊天问答和检索** — 核心价值交付
+4. **JWT 认证 + 用户管理** — 访问控制基础
+5. **对话历史** — 连续性功能
 
-**Defer:**
-- OCR for scanned PDFs (use initially clean PDFs only)
-- OAuth login (password auth is sufficient for MVP)
-- Reranking (add after getting core retrieval working)
-- Semantic/semantic chunking (use fixed-size with overlap initially)
+**推迟：**
+- 扫描 PDF 的 OCR（最初只用干净的 PDF）
+- OAuth 登录（密码认证对 MVP 足够）
+- 重排（核心检索工作后再加）
+- 语义/语义分块（最初用固定大小 + 重叠）
 
 ---
 
-## Sources
+## 来源
 
 - [RAG With Open-Source LLMs: Build a Private Document Chatbot](https://aikolhub.com/rag-with-open-source-llms-build-a-private-document-chatbot/)
 - [How to Build a Knowledge Base From Your Documents](https://osfoundry.io/articles/building-a-knowledge-base-from-docs)

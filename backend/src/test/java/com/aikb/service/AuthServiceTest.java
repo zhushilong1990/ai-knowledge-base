@@ -47,7 +47,7 @@ class AuthServiceTest {
     @Test
     void register_withNewEmail_createsUser() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+        when(userRepository.insert(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             user.setId(1L);
             return user;
@@ -133,7 +133,7 @@ class AuthServiceTest {
     @Test
     void password_isBCryptEncoded() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+        when(userRepository.insert(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             user.setId(1L);
             return user;
@@ -141,7 +141,6 @@ class AuthServiceTest {
 
         authService.register("test@example.com", "password123");
 
-        // Verify the saved user has a BCrypt-encoded password
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(
                 User.builder()
                         .id(1L)
@@ -150,7 +149,8 @@ class AuthServiceTest {
                         .build()
         ));
 
-        User savedUser = userRepository.findByEmail("test@example.com").orElseThrow();
+        User savedUser = userRepository.findByEmail("test@example.com").orElse(null);
+        assertNotNull(savedUser);
         assertTrue(savedUser.getPasswordHash().startsWith("$2a$"));
     }
 }

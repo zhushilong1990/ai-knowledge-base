@@ -5,26 +5,30 @@ import com.aikb.dto.LoginRequest;
 import com.aikb.dto.RefreshRequest;
 import com.aikb.dto.RegisterRequest;
 import com.aikb.service.AuthService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import javax.validation.Valid;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         Long userId = authService.register(request.getEmail(), request.getPassword());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "User registered successfully", "userId", userId));
+                .body(Collections.singletonMap("message", "User registered successfully"));
     }
 
     @PostMapping("/login")
@@ -41,19 +45,18 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
-        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+        return ResponseEntity.ok(Collections.singletonMap("message", "Logged out successfully"));
     }
 
     @GetMapping("/userinfo")
     public ResponseEntity<?> userinfo() {
-        var authentication = org.springframework.security.core.SecurityContextHolder
-                .getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()
                 || "anonymousUser".equals(authentication.getPrincipal())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Unauthorized"));
+                    .body(Collections.singletonMap("error", "Unauthorized"));
         }
         String email = authentication.getName();
-        return ResponseEntity.ok(Map.of("email", email));
+        return ResponseEntity.ok(Collections.singletonMap("email", email));
     }
 }
