@@ -25,6 +25,16 @@
               </el-tag>
             </p>
             <p class="user-detail">Logged in as: {{ userEmail }}</p>
+            <p class="upload-link">
+              <router-link to="/upload">
+                <el-button type="primary" size="small">Upload Document</el-button>
+              </router-link>
+            </p>
+            <p class="chat-link">
+              <router-link to="/chat">
+                <el-button type="success" size="small">Start Chat</el-button>
+              </router-link>
+            </p>
           </div>
         </el-card>
       </el-main>
@@ -116,5 +126,21 @@ const handleLogout = async () => {
 .user-detail {
   color: #666;
   font-size: 14px;
+}
+
+.upload-link {
+  margin-top: 20px;
+}
+
+.upload-link a {
+  text-decoration: none;
+}
+
+.chat-link {
+  margin-top: 12px;
+}
+
+.chat-link a {
+  text-decoration: none;
 }
 </style>
