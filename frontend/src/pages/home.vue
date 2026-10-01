@@ -35,6 +35,11 @@
                 <el-button type="success" size="small">Start Chat</el-button>
               </router-link>
             </p>
+            <p class="kb-link">
+              <router-link to="/knowledge-bases">
+                <el-button type="info" size="small">Manage Knowledge Bases</el-button>
+              </router-link>
+            </p>
           </div>
         </el-card>
       </el-main>
@@ -141,6 +146,14 @@ const handleLogout = async () => {
 }
 
 .chat-link a {
+  text-decoration: none;
+}
+
+.kb-link {
+  margin-top: 12px;
+}
+
+.kb-link a {
   text-decoration: none;
 }
 </style>

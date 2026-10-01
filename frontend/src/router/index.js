@@ -23,6 +23,24 @@ const routes = [
     name: 'Home',
     component: () => import('../pages/home.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/upload',
+    name: 'Upload',
+    component: () => import('../pages/upload.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: () => import('../pages/chat.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/knowledge-bases',
+    name: 'KnowledgeBase',
+    component: () => import('../pages/knowledgeBase.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

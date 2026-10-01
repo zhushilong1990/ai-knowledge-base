@@ -44,6 +44,35 @@ public class DocumentService {
         this.documentMapper = documentMapper;
     }
 
+    /**
+     * Delete a document and its vectors from Chroma.
+     */
+    public void deleteDocument(Long docId, Long userId) {
+        Document doc = documentMapper.selectById(docId);
+        if (doc == null) {
+            throw new RuntimeException("Document not found");
+        }
+        if (!doc.getUserId().equals(userId)) {
+            throw new RuntimeException("Access denied");
+        }
+        Long kbId = doc.getKnowledgeBaseId();
+
+        // 1. Delete from Chroma first
+        try {
+            Map<String, Object> req = new HashMap<>();
+            req.put("kbId", kbId);
+            req.put("userId", userId);
+            req.put("chromaPath", chromaPath);
+            String result = executePythonScript(findDeleteScriptPath(), objectMapper.writeValueAsString(req));
+            // result: { "deleted": count }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete vectors from Chroma: " + e.getMessage());
+        }
+
+        // 2. Delete from MySQL
+        documentMapper.deleteById(docId);
+    }
+
     public DocumentUploadResponse uploadDocument(MultipartFile file, Long kbId, Long userId) throws Exception {
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isEmpty()) {
@@ -188,6 +217,19 @@ public class DocumentService {
             return scriptPath.toString();
         }
         return "backend/scripts/extract_and_embed.py";
+    }
+
+    private String findDeleteScriptPath() {
+        Path workingDir = Paths.get("").toAbsolutePath();
+        Path scriptPath = workingDir.resolve("backend/scripts/delete_document.py");
+        if (Files.exists(scriptPath)) {
+            return scriptPath.toString();
+        }
+        scriptPath = workingDir.resolve("scripts/delete_document.py");
+        if (Files.exists(scriptPath)) {
+            return scriptPath.toString();
+        }
+        return "backend/scripts/delete_document.py";
     }
 
     private String getFileExtension(String filename) {
