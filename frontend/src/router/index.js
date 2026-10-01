@@ -41,6 +41,12 @@ const routes = [
     name: 'KnowledgeBase',
     component: () => import('../pages/knowledgeBase.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('../pages/admin.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

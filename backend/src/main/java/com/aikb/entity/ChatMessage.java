@@ -38,4 +38,11 @@ public class ChatMessage {
 
     @TableField("created_at")
     private LocalDateTime createdAt;
+
+    /**
+     * Transient field for feedback status - not stored in DB, loaded via JOIN.
+     * Values: 'like', 'dislike', or null
+     */
+    @TableField(exist = false)
+    private String feedback;
 }

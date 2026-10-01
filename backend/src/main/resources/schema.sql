@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS documents (
     knowledge_base_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     external_document_id VARCHAR(255),
+    file_path VARCHAR(500),
     chunk_count INT DEFAULT 0,
     status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -41,6 +42,19 @@ CREATE TABLE IF NOT EXISTS chat_message (
     sources JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_session_id (session_id)
+);
+
+CREATE TABLE IF NOT EXISTS chat_feedback (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    message_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    rating VARCHAR(10) NOT NULL COMMENT 'like/dislike',
+    feedback_reason VARCHAR(500) COMMENT 'Optional reason',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_message_user (message_id, user_id),
+    INDEX idx_message_id (message_id),
+    INDEX idx_user_id (user_id)
 );
 
 CREATE TABLE IF NOT EXISTS knowledge_base (

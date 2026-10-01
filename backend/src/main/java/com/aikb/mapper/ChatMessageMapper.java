@@ -11,6 +11,10 @@ import java.util.List;
 @Mapper
 public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
 
-    @Select("SELECT * FROM chat_message WHERE session_id = #{sessionId} ORDER BY created_at ASC")
-    List<ChatMessage> selectBySessionId(@Param("sessionId") Long sessionId);
+    @Select("SELECT cm.*, cf.rating as feedback " +
+            "FROM chat_message cm " +
+            "LEFT JOIN chat_feedback cf ON cm.id = cf.message_id AND cf.user_id = #{userId} " +
+            "WHERE cm.session_id = #{sessionId} " +
+            "ORDER BY cm.created_at ASC")
+    List<ChatMessage> selectBySessionId(@Param("sessionId") Long sessionId, @Param("userId") Long userId);
 }

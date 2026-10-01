@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 @Service
 public class ChatService {
 
@@ -195,5 +197,31 @@ public class ChatService {
             return scriptPath.toString();
         }
         return "backend/scripts/chat_and_answer.py";
+    }
+
+    /**
+     * Get all chat sessions for a user, ordered by updated_at desc.
+     */
+    public List<ChatSession> getSessionsByUserId(Long userId) {
+        return sessionMapper.selectList(
+            new QueryWrapper<ChatSession>()
+                .eq("user_id", userId)
+                .orderByDesc("updated_at")
+        );
+    }
+
+    /**
+     * Get chat history for a session. Validates session belongs to user.
+     * @throws RuntimeException if session not found or not owned by user
+     */
+    public List<ChatMessage> getChatHistory(Long sessionId, Long userId) {
+        ChatSession session = sessionMapper.selectById(sessionId);
+        if (session == null) {
+            throw new RuntimeException("Session not found");
+        }
+        if (!session.getUserId().equals(userId)) {
+            throw new RuntimeException("Access denied");
+        }
+        return messageMapper.selectBySessionId(sessionId, userId);
     }
 }

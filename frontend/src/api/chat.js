@@ -34,3 +34,29 @@ export async function getChatSessions() {
   const response = await api.get('/chat/sessions')
   return response.data
 }
+
+/**
+ * Submit feedback for a chat message.
+ * @param {number} messageId - Message ID
+ * @param {string} rating - 'like' or 'dislike'
+ * @param {string|null} reason - Optional feedback reason
+ * @returns {Promise<Object>} Feedback object
+ */
+export async function submitFeedback(messageId, rating, reason) {
+  const response = await api.post('/chat/feedback', {
+    messageId,
+    rating,
+    feedbackReason: reason || null
+  })
+  return response.data
+}
+
+/**
+ * Get feedback for a chat message.
+ * @param {number} messageId - Message ID
+ * @returns {Promise<Object>} Feedback object
+ */
+export async function getFeedback(messageId) {
+  const response = await api.get(`/chat/feedback/${messageId}`)
+  return response.data
+}

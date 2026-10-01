@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { askQuestion, getChatHistory, getChatSessions } from '../api/chat.js'
+import { askQuestion, getChatHistory, getChatSessions, submitFeedback as submitFeedbackApi } from '../api/chat.js'
 import { ElMessage } from 'element-plus'
 
 export const useChatStore = defineStore('chat', () => {
@@ -57,6 +57,12 @@ export const useChatStore = defineStore('chat', () => {
       const history = await getChatHistory(sessionId)
       messages.value[sessionId] = history
       currentSessionId.value = sessionId
+      // Move accessed session to top of sessions list
+      const sessionIndex = sessions.value.findIndex(s => s.id === sessionId)
+      if (sessionIndex > 0) {
+        const [session] = sessions.value.splice(sessionIndex, 1)
+        sessions.value.unshift(session)
+      }
     } catch (error) {
       ElMessage.error('Failed to load chat history')
     }
@@ -70,6 +76,25 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  async function submitFeedback(messageId, rating) {
+    try {
+      const result = await submitFeedbackApi(messageId, rating)
+      // Update local message feedback state
+      for (const sid in messages.value) {
+        const msg = messages.value[sid].find(m => m.id === messageId)
+        if (msg) {
+          // Toggle: if same rating is clicked, remove feedback
+          msg.feedback = msg.feedback === rating ? null : rating
+          break
+        }
+      }
+      return result
+    } catch (error) {
+      ElMessage.error('Failed to submit feedback')
+      throw error
+    }
+  }
+
   return {
     sessions,
     currentSessionId,
@@ -77,6 +102,7 @@ export const useChatStore = defineStore('chat', () => {
     loading,
     sendQuestion,
     loadHistory,
-    loadSessions
+    loadSessions,
+    submitFeedback
   }
 })

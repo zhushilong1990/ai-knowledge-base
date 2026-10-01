@@ -10,7 +10,7 @@
 - [x] **Phase 2: Document Ingestion** — 上传、解析、分块、embedding、Chroma 索引
 - [x] **Phase 3: Chat/QA** — RAG 检索、上下文注入、LLM 响应
 - [x] **Phase 4: Knowledge Base Management** — 知识库 CRUD、文档-知识库关联
-- [ ] **Phase 5: History & Feedback** — 对话历史、点赞/点踩
+- [x] **Phase 5: History & Feedback** — 对话历史、点赞/点踩
 - [ ] **Phase 6: Maintenance & Polish** — 部署、监控、多端点
 
 ## 阶段详情
@@ -84,7 +84,9 @@
   3. 用户可以对回答点赞或点踩
   4. 用户反馈被存储并与回答关联
   5. 对话跨浏览器会话持久化
-**计划**：待定
+**计划**：2 plans
+- [x] 05-01-PLAN.md — 反馈提交功能：chat_feedback 表 + Entity/Mapper/Service/Controller + 前端点赞/点踩按钮
+- [x] 05-02-PLAN.md — 会话历史加载：历史消息携带反馈状态 + 会话列表点击导航
 
 ### Phase 6: Maintenance & Polish
 **目标**：系统通过监控和多端点部署达到生产就绪
@@ -97,7 +99,9 @@
   3. API 端点有基本健康检查和监控
   4. 多端点变体（H5/小程序/App）可从同一代码库构建
   5. 重新索引管道可以刷新陈旧的文档向量
-**计划**：待定
+**计划**：2 plans
+- [ ] 06-01-PLAN.md — 部署准备：健康检查 + 错误处理 + H5 构建配置
+- [ ] 06-02-PLAN.md — 多端点构建 + 重新索引管道
 
 ## 进度
 
@@ -107,5 +111,5 @@
 | 2. Document Ingestion | 3/3 | Complete | 2026-10-01 |
 | 3. Chat/QA | 2/2 | Complete | 2026-10-01 |
 | 4. Knowledge Base Management | 1/1 | Complete | 2026-10-01 |
-| 5. History & Feedback | 0/? | Not started | - |
+| 5. History & Feedback | 2/2 | Complete | 2026-10-01 |
 | 6. Maintenance & Polish | 0/? | Not started | - |

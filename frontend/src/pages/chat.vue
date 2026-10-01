@@ -56,6 +56,24 @@
                     <span class="source-score">({{ (source.score * 100).toFixed(0) }}%)</span>
                   </div>
                 </div>
+                <div v-if="msg.role === 'assistant'" class="message-feedback">
+                  <el-button
+                    :type="msg.feedback === 'like' ? 'success' : 'default'"
+                    size="small"
+                    circle
+                    @click="handleFeedback(msg.id, 'like')"
+                  >
+                    <ThumbUp />
+                  </el-button>
+                  <el-button
+                    :type="msg.feedback === 'dislike' ? 'danger' : 'default'"
+                    size="small"
+                    circle
+                    @click="handleFeedback(msg.id, 'dislike')"
+                  >
+                    <ThumbDown />
+                  </el-button>
+                </div>
               </div>
             </div>
           </div>
@@ -94,7 +112,7 @@
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Loading } from '@element-plus/icons-vue'
+import { Loading, ThumbUp, ThumbDown } from '@element-plus/icons-vue'
 import { useChatStore } from '../stores/chat.js'
 
 const chatStore = useChatStore()
@@ -142,6 +160,10 @@ function scrollToBottom() {
       scrollbar.wrapRef.scrollTop = scrollbar.wrapRef.scrollHeight
     }
   })
+}
+
+async function handleFeedback(messageId, rating) {
+  await chatStore.submitFeedback(messageId, rating)
 }
 
 onMounted(() => {
@@ -305,6 +327,12 @@ onMounted(() => {
 
 .source-score {
   color: #909399;
+}
+
+.message-feedback {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
 }
 
 .loading-indicator {

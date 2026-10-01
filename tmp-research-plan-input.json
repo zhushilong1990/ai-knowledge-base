@@ -1,0 +1,26 @@
+{
+  "ecosystem": "npm",
+  "config": { "exa_search": false, "brave_search": false, "firecrawl": false, "tavily_search": false },
+  "questions": [
+    {
+      "text": "ChromaDB Python client query() method - how to filter by metadata (where clause), set similarity threshold, and get distances?",
+      "kind": "docs",
+      "library": "chromadb",
+      "version": "0.4.0"
+    },
+    {
+      "text": "SiliconFlow API DeepSeek chat completions - endpoint URL, request format, response format, error handling",
+      "kind": "docs",
+      "library": "siliconflow",
+      "version": "1.0"
+    },
+    {
+      "text": "RAG prompt engineering best practices - system prompt with citations, user question formatting, context injection patterns",
+      "kind": "web"
+    },
+    {
+      "text": "Vue 3 chat UI component patterns - message list, citations rendering, session management",
+      "kind": "web"
+    }
+  ]
+}

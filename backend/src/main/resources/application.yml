@@ -11,6 +11,10 @@ spring:
   sql:
     init:
       mode: always
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 mybatis-plus:
   configuration:
@@ -26,3 +30,18 @@ jwt:
 
 server:
   port: 8080
+
+siliconflow:
+  api-key: ${SILICON_FLOW_API_KEY:}
+  base-url: https://api.siliconflow.cn/v1
+
+chroma:
+  persist-directory: backend/data/chroma
+
+files:
+  persist-directory: backend/data/files
+
+upload:
+  temp-directory: backend/uploads
+  allowed-extensions: pdf,docx,txt
+  max-size: 10485760
