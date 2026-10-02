@@ -20,17 +20,27 @@ MAX_SOURCES = 3
 
 def retrieve_context(question, kb_id, user_id, chroma_path):
     """Query ChromaDB for relevant chunks, filter by similarity threshold, return top-3."""
-    collection_name = f"user_{user_id}_kb_{kb_id}"
-
     client = chromadb.PersistentClient(path=chroma_path)
-    collection = client.get_or_create_collection(name=collection_name)
 
-    results = collection.query(
-        query_texts=[question],
-        n_results=TOP_K,
-        where={"kbId": str(kb_id)},
-        include=["documents", "distances", "metadatas"]
-    )
+    # Try real userId first, then fall back to legacy hashCode collection
+    for uid in [user_id, abs(hash(str(user_id))) % (10**10)]:
+        collection_name = f"user_{uid}_kb_{kb_id}"
+        try:
+            collection = client.get_or_create_collection(name=collection_name)
+            results = collection.query(
+                query_texts=[question],
+                n_results=TOP_K,
+                where={"kbId": str(kb_id)},
+                include=["documents", "distances", "metadatas"]
+            )
+            # If collection exists and has results, return them
+            if results["documents"] and results["documents"][0]:
+                break
+        except Exception:
+            continue
+    else:
+        # No collection found with any userId
+        return []
 
     # Post-filter by similarity threshold (distance > 0.6 means similarity < 0.7)
     filtered = []
