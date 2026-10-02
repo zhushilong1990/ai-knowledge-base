@@ -11,7 +11,7 @@
 - [x] **Phase 3: Chat/QA** — RAG 检索、上下文注入、LLM 响应
 - [x] **Phase 4: Knowledge Base Management** — 知识库 CRUD、文档-知识库关联
 - [x] **Phase 5: History & Feedback** — 对话历史、点赞/点踩
-- [ ] **Phase 6: Maintenance & Polish** — 部署、监控、多端点
+- [x] **Phase 6: Maintenance & Polish** — 部署、监控、多端点
 
 ## 阶段详情
 
