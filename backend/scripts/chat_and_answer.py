@@ -159,7 +159,7 @@ def main():
             "sources": response_sources
         }))
 
-    except chromadb.errors.CollectionNotFoundError:
+    except chromadb.errors.NotFoundError:
         print(json.dumps({"error": "知识库为空，请先上传文档"}))
         sys.exit(1)
     except requests.exceptions.RequestException as e:
