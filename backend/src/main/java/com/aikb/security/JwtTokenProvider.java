@@ -81,6 +81,15 @@ public class JwtTokenProvider {
         return claims.get(claimName, String.class);
     }
 
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userId", Long.class);
+    }
+
     public long getRemainingTime(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())

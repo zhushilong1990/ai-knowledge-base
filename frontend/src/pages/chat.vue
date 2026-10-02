@@ -64,18 +64,16 @@
                   <el-button
                     :type="msg.feedback === 'like' ? 'success' : 'default'"
                     size="small"
-                    circle
                     @click="handleFeedback(msg.id, 'like')"
                   >
-                    <ThumbUp />
+                    👍 有用
                   </el-button>
                   <el-button
                     :type="msg.feedback === 'dislike' ? 'danger' : 'default'"
                     size="small"
-                    circle
                     @click="handleFeedback(msg.id, 'dislike')"
                   >
-                    <ThumbDown />
+                    👎 没用
                   </el-button>
                 </div>
               </div>
@@ -116,7 +114,7 @@
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Loading, ThumbUp, ThumbDown } from '@element-plus/icons-vue'
+import { Loading } from '@element-plus/icons-vue'
 import { useChatStore } from '../stores/chat.js'
 import { useKnowledgeBaseStore } from '../stores/knowledgeBase.js'
 
