@@ -9,6 +9,8 @@ import com.aikb.mapper.ChatSessionMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 @Service
 public class ChatService {
+    private static final Logger log = LoggerFactory.getLogger(ChatService.class);
 
     @Value("${chroma.persist-directory}")
     private String chromaPath;
@@ -131,6 +134,7 @@ public class ChatService {
     }
 
     private String executePythonScript(String scriptPath, String requestJson) throws Exception {
+        log.info("Executing Python script: {} with request: {}", scriptPath, requestJson);
         ProcessBuilder pb = new ProcessBuilder("python", scriptPath);
         pb.redirectErrorStream(false);
         pb.environment().put("SILICON_FLOW_API_KEY", siliconflowApiKey);
@@ -181,6 +185,9 @@ public class ChatService {
 
         stdoutReader.join(1000);
         stderrReader.join(1000);
+
+        log.info("Python stdout: {}", stdout.toString());
+        log.info("Python stderr: {}, exitCode: {}", stderr.toString(), process.exitValue());
 
         if (process.exitValue() != 0) {
             throw new RuntimeException("Python script failed with exit code " + process.exitValue()
