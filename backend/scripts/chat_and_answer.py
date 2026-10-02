@@ -117,14 +117,14 @@ def main():
     kb_id = req.get("kbId", 0)
     user_id = req.get("userId", 0)
     chroma_path = req.get("chromaPath", DEFAULT_CHROMA_PATH)
-    api_key = os.environ.get("SILICONFLOW_API_KEY", "")
+    api_key = os.environ.get("SILICON_FLOW_API_KEY", "")
 
     if not question:
         print(json.dumps({"error": "question is required"}))
         sys.exit(1)
 
     if not api_key:
-        print(json.dumps({"error": "SILICONFLOW_API_KEY environment variable is not set"}))
+        print(json.dumps({"error": "SILICON_FLOW_API_KEY environment variable is not set"}))
         sys.exit(1)
 
     try:

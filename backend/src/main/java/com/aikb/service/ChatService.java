@@ -34,6 +34,9 @@ public class ChatService {
     @Value("${chroma.persist-directory}")
     private String chromaPath;
 
+    @Value("${siliconflow.api-key}")
+    private String siliconflowApiKey;
+
     private final ChatSessionMapper sessionMapper;
     private final ChatMessageMapper messageMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -130,6 +133,7 @@ public class ChatService {
     private String executePythonScript(String scriptPath, String requestJson) throws Exception {
         ProcessBuilder pb = new ProcessBuilder("python", scriptPath);
         pb.redirectErrorStream(false);
+        pb.environment().put("SILICON_FLOW_API_KEY", siliconflowApiKey);
 
         Process process = pb.start();
 
