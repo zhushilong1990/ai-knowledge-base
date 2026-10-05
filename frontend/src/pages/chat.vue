@@ -150,11 +150,13 @@ const canSend = computed(() => {
 function startNewSession() {
   chatStore.currentSessionId = null
   question.value = ''
+  selectedKbId.value = null
 }
 
 function goBack() {
   chatStore.currentSessionId = null
   question.value = ''
+  selectedKbId.value = null
 }
 
 async function handleDeleteSession(sessionId) {
@@ -175,6 +177,21 @@ async function handleDeleteSession(sessionId) {
 
 async function selectSession(sessionId) {
   await chatStore.loadHistory(sessionId)
+  // Auto-select the KB associated with this session
+  // Prefer kbId from the first user message (captured at ask time)
+  const msgs = chatStore.messages[sessionId] || []
+  const firstUserMsg = msgs.find(m => m.role === 'user')
+  if (firstUserMsg && firstUserMsg.kbId) {
+    selectedKbId.value = firstUserMsg.kbId
+  } else {
+    // Fallback to session.kbId
+    const session = chatStore.sessions.find(s => s.id === sessionId)
+    if (session && session.kbId) {
+      selectedKbId.value = session.kbId
+    } else {
+      selectedKbId.value = null
+    }
+  }
   await nextTick()
   scrollToBottom()
 }

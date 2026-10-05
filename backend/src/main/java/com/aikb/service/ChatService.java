@@ -35,8 +35,14 @@ public class ChatService {
     @Value("${chroma.persist-directory}")
     private String chromaPath;
 
-    @Value("${siliconflow.api-key}")
-    private String siliconflowApiKey;
+    @Value("${llm.api-key}")
+    private String llmApiKey;
+
+    @Value("${llm.base-url}")
+    private String llmBaseUrl;
+
+    @Value("${llm.model}")
+    private String llmModel;
 
     @Value("${embedding.provider}")
     private String embedProvider;
@@ -68,6 +74,7 @@ public class ChatService {
         if (sessionId == null) {
             ChatSession session = ChatSession.builder()
                     .userId(userId)
+                    .kbId(request.getKbId())
                     .title(request.getQuestion().substring(0, Math.min(30, request.getQuestion().length())))
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
@@ -81,7 +88,6 @@ public class ChatService {
         scriptRequest.put("kbId", request.getKbId());
         scriptRequest.put("chromaPath", chromaPath);
 
-        // Query the knowledge base to find its actual owner userId (for ChromaDB collection naming)
         Long ownerUserId = userId;
         try {
             KnowledgeBase kb = knowledgeBaseMapper.selectById(request.getKbId());
@@ -103,10 +109,6 @@ public class ChatService {
         ChatResponse chatResponse;
         try {
             Map<String, Object> resultMap = objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {});
-            if (resultMap.containsKey("error")) {
-                throw new RuntimeException("Chat script error: " + resultMap.get("error"));
-            }
-
             chatResponse = new ChatResponse();
             chatResponse.setSessionId(sessionId);
             chatResponse.setAnswer((String) resultMap.get("answer"));
@@ -118,7 +120,10 @@ public class ChatService {
                             ChatResponse.Source source = new ChatResponse.Source();
                             source.setId((String) s.get("id"));
                             source.setText((String) s.get("text"));
-                            source.setScore(((Number) s.get("score")).doubleValue());
+                            Object scoreObj = s.get("score");
+                            if (scoreObj != null) {
+                                source.setScore(((Number) scoreObj).doubleValue());
+                            }
                             return source;
                         })
                         .collect(Collectors.toList());
@@ -157,14 +162,9 @@ public class ChatService {
         return chatResponse;
     }
 
-    /**
-     * Execute Python script using file-based communication to avoid stdin/stdout pipe encoding issues on Windows.
-     * Writes request JSON to a temp file, Python reads it and writes output to another temp file.
-     */
     private String executePythonScript(String scriptPath, String requestJson) throws Exception {
         log.info("Executing Python script: {} with request: {}", scriptPath, requestJson);
 
-        // Write request JSON to temp file (bypass stdin pipe encoding issues on Windows)
         Path inputFile = Files.createTempFile("chat_input_", ".json");
         Path outputFile = Files.createTempFile("chat_output_", ".json");
         inputFile.toFile().deleteOnExit();
@@ -173,7 +173,9 @@ public class ChatService {
         Files.write(inputFile, requestJson.getBytes("UTF-8"));
 
         ProcessBuilder pb = new ProcessBuilder("python", scriptPath, inputFile.toString(), outputFile.toString());
-        pb.environment().put("SILICON_FLOW_API_KEY", siliconflowApiKey);
+        pb.environment().put("LLM_API_KEY", llmApiKey);
+        pb.environment().put("LLM_BASE_URL", llmBaseUrl);
+        pb.environment().put("LLM_MODEL", llmModel);
         pb.environment().put("EMBED_PROVIDER", embedProvider);
         pb.environment().put("EMBED_API_KEY", embedApiKey);
         pb.environment().put("EMBED_BASE_URL", embedBaseUrl);
@@ -188,11 +190,21 @@ public class ChatService {
         }
 
         if (process.exitValue() != 0) {
-            throw new RuntimeException("Python script failed with exit code " + process.exitValue());
+            StringBuilder sb = new StringBuilder();
+            try (java.io.BufferedReader br = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(process.getErrorStream(), "UTF-8"))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+            }
+            String stderr = sb.toString();
+            log.error("Python script failed: {}", stderr);
+            throw new RuntimeException("Python script failed with exit code " + process.exitValue() + ": " + stderr);
         }
 
-        // Read output from file (bypass stdout pipe encoding issues on Windows)
-        String result = new String(Files.readAllBytes(outputFile), "UTF-8");
+        byte[] outputBytes = java.nio.file.Files.readAllBytes(outputFile);
+        String result = new String(outputBytes, "UTF-8");
         log.info("Python script finished, exitCode: 0, output length: {}", result.length());
 
         return result.trim();
@@ -211,9 +223,6 @@ public class ChatService {
         return "backend/scripts/chat_and_answer.py";
     }
 
-    /**
-     * Get all chat sessions for a user, ordered by updated_at desc.
-     */
     public List<ChatSession> getSessionsByUserId(Long userId) {
         return sessionMapper.selectList(
             new QueryWrapper<ChatSession>()
@@ -222,10 +231,6 @@ public class ChatService {
         );
     }
 
-    /**
-     * Get chat history for a session. Validates session belongs to user.
-     * @throws RuntimeException if session not found or not owned by user
-     */
     public List<ChatMessage> getChatHistory(Long sessionId, Long userId) {
         ChatSession session = sessionMapper.selectById(sessionId);
         if (session == null) {
@@ -234,13 +239,14 @@ public class ChatService {
         if (!session.getUserId().equals(userId)) {
             throw new RuntimeException("Access denied");
         }
-        return messageMapper.selectBySessionId(sessionId, userId);
+        List<ChatMessage> messages = messageMapper.selectBySessionId(sessionId, userId);
+        // Populate kbId from session for each message
+        for (ChatMessage msg : messages) {
+            msg.setKbId(session.getKbId());
+        }
+        return messages;
     }
 
-    /**
-     * Delete a chat session and all its messages.
-     * @throws RuntimeException if session not found or not owned by user
-     */
     public void deleteSession(Long sessionId, Long userId) {
         ChatSession session = sessionMapper.selectById(sessionId);
         if (session == null) {
@@ -249,9 +255,7 @@ public class ChatService {
         if (!session.getUserId().equals(userId)) {
             throw new RuntimeException("Access denied");
         }
-        // Delete messages first (foreign key constraint)
         messageMapper.deleteBySessionId(sessionId);
-        // Delete session
         sessionMapper.deleteById(sessionId);
     }
 }

@@ -45,4 +45,10 @@ public class ChatMessage {
      */
     @TableField(exist = false)
     private String feedback;
+
+    /**
+     * Transient field for knowledge base ID - not stored in DB, populated from session.
+     */
+    @TableField(exist = false)
+    private Long kbId;
 }
