@@ -66,12 +66,12 @@
             >
               <div class="message-bubble">
                 <div class="message-content">{{ msg.content }}</div>
-                <div v-if="msg.role === 'assistant' && msg.sources && msg.sources.length > 0" class="message-sources">
+                <div v-if="msg.role === 'assistant' && getValidSources(msg.sources).length > 0" class="message-sources">
                   <div class="sources-label">参考来源：</div>
-                  <div v-for="source in msg.sources" :key="source.id" class="source-item">
-                    <span class="source-id">【{{ source.id }}】</span>
-                    <span class="source-text">{{ source.text }}</span>
-                    <span class="source-score">({{ (source.score * 100).toFixed(0) }}%)</span>
+                  <div v-for="(source, srcIdx) in getValidSources(msg.sources)" :key="srcIdx" class="source-item">
+                    <span class="source-id">【{{ srcIdx + 1 }}】</span>
+                    <span class="source-text">{{ source.text || source.content || '' }}</span>
+                    <span class="source-score">({{ source.score != null ? (source.score * 100).toFixed(0) + '%' : '' }})</span>
                   </div>
                 </div>
                 <div v-if="msg.role === 'assistant'" class="message-feedback">
@@ -173,8 +173,10 @@ async function handleDeleteSession(sessionId) {
   }
 }
 
-function selectSession(sessionId) {
-  chatStore.loadHistory(sessionId)
+async function selectSession(sessionId) {
+  await chatStore.loadHistory(sessionId)
+  await nextTick()
+  scrollToBottom()
 }
 
 async function handleSend() {
@@ -203,6 +205,11 @@ function scrollToBottom() {
 
 async function handleFeedback(messageId, rating) {
   await chatStore.submitFeedback(messageId, rating)
+}
+
+function getValidSources(sources) {
+  if (!sources || !Array.isArray(sources)) return []
+  return sources.filter(s => s && (s.text || s.content || s.id))
 }
 
 onMounted(() => {
