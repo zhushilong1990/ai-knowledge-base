@@ -250,8 +250,8 @@ public class ChatService {
             throw new RuntimeException("Access denied");
         }
         // Delete messages first (foreign key constraint)
-        chatMessageMapper.deleteBySessionId(sessionId);
+        messageMapper.deleteBySessionId(sessionId);
         // Delete session
-        chatSessionMapper.deleteById(sessionId);
+        sessionMapper.deleteById(sessionId);
     }
 }
