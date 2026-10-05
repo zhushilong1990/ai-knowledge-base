@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { askQuestion, getChatHistory, getChatSessions, submitFeedback as submitFeedbackApi } from '../api/chat.js'
+import { askQuestion, getChatHistory, getChatSessions, submitFeedback as submitFeedbackApi, deleteSession as deleteSessionApi } from '../api/chat.js'
 import { ElMessage } from 'element-plus'
 
 export const useChatStore = defineStore('chat', () => {
@@ -95,6 +95,24 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  async function deleteSession(sessionId) {
+    try {
+      await deleteSessionApi(sessionId, 1)  // userId 1 for now
+      // Remove from sessions list
+      sessions.value = sessions.value.filter(s => s.id !== sessionId)
+      // Clear messages for this session
+      delete messages.value[sessionId]
+      // Clear current session if it was deleted
+      if (currentSessionId.value === sessionId) {
+        currentSessionId.value = null
+      }
+      return true
+    } catch (error) {
+      ElMessage.error('Failed to delete session')
+      throw error
+    }
+  }
+
   return {
     sessions,
     currentSessionId,
@@ -103,6 +121,7 @@ export const useChatStore = defineStore('chat', () => {
     sendQuestion,
     loadHistory,
     loadSessions,
-    submitFeedback
+    submitFeedback,
+    deleteSession
   }
 })

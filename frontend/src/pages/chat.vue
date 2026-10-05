@@ -16,6 +16,14 @@
               @click="selectSession(session.id)"
             >
               <span class="session-title">{{ session.title }}</span>
+              <el-button
+                type="danger"
+                size="small"
+                class="delete-btn"
+                @click.stop="handleDeleteSession(session.id)"
+                :icon="Delete"
+                circle
+              />
             </div>
             <div v-if="chatStore.sessions.length === 0" class="no-sessions">
               暂无会话
@@ -26,6 +34,11 @@
 
       <!-- 主聊天区域 -->
       <el-main class="chat-main">
+        <!-- 返回按钮 -->
+        <div v-if="chatStore.currentSessionId" class="back-bar">
+          <el-button :icon="ArrowLeft" @click="goBack">返回会话列表</el-button>
+        </div>
+
         <!-- 知识库选择器 -->
         <div class="kb-selector">
           <span class="kb-label">知识库：</span>
@@ -113,8 +126,8 @@
 
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Loading } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Loading, Delete, ArrowLeft } from '@element-plus/icons-vue'
 import { useChatStore } from '../stores/chat.js'
 import { useKnowledgeBaseStore } from '../stores/knowledgeBase.js'
 
@@ -136,6 +149,27 @@ const canSend = computed(() => {
 function startNewSession() {
   chatStore.currentSessionId = null
   question.value = ''
+}
+
+function goBack() {
+  chatStore.currentSessionId = null
+  question.value = ''
+}
+
+async function handleDeleteSession(sessionId) {
+  try {
+    await ElMessageBox.confirm('确定要删除这个会话吗？删除后无法恢复。', '确认删除', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await chatStore.deleteSession(sessionId)
+    ElMessage.success('会话已删除')
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('Delete session failed:', error)
+    }
+  }
 }
 
 function selectSession(sessionId) {
@@ -203,6 +237,9 @@ onMounted(() => {
   cursor: pointer;
   border-radius: 4px;
   margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .session-item:hover {
@@ -219,7 +256,17 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: block;
+  flex: 1;
+}
+
+.delete-btn {
+  flex-shrink: 0;
+  margin-left: 8px;
+  opacity: 0.6;
+}
+
+.session-item:hover .delete-btn {
+  opacity: 1;
 }
 
 .no-sessions {
@@ -234,6 +281,12 @@ onMounted(() => {
   flex-direction: column;
   padding: 0;
   height: 100%;
+}
+
+.back-bar {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafafa;
 }
 
 .kb-selector {

@@ -4,8 +4,10 @@ import com.aikb.dto.ChatRequest;
 import com.aikb.dto.ChatResponse;
 import com.aikb.entity.ChatMessage;
 import com.aikb.entity.ChatSession;
+import com.aikb.entity.KnowledgeBase;
 import com.aikb.mapper.ChatMessageMapper;
 import com.aikb.mapper.ChatSessionMapper;
+import com.aikb.mapper.KnowledgeBaseMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,10 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,13 +38,28 @@ public class ChatService {
     @Value("${siliconflow.api-key}")
     private String siliconflowApiKey;
 
+    @Value("${embedding.provider}")
+    private String embedProvider;
+
+    @Value("${embedding.api-key}")
+    private String embedApiKey;
+
+    @Value("${embedding.base-url}")
+    private String embedBaseUrl;
+
+    @Value("${embedding.model}")
+    private String embedModel;
+
     private final ChatSessionMapper sessionMapper;
     private final ChatMessageMapper messageMapper;
+    private final KnowledgeBaseMapper knowledgeBaseMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ChatService(ChatSessionMapper sessionMapper, ChatMessageMapper messageMapper) {
+    public ChatService(ChatSessionMapper sessionMapper, ChatMessageMapper messageMapper,
+                      KnowledgeBaseMapper knowledgeBaseMapper) {
         this.sessionMapper = sessionMapper;
         this.messageMapper = messageMapper;
+        this.knowledgeBaseMapper = knowledgeBaseMapper;
     }
 
     public ChatResponse askQuestion(ChatRequest request, Long userId) {
@@ -66,8 +79,19 @@ public class ChatService {
         Map<String, Object> scriptRequest = new HashMap<>();
         scriptRequest.put("question", request.getQuestion());
         scriptRequest.put("kbId", request.getKbId());
-        scriptRequest.put("userId", userId);
         scriptRequest.put("chromaPath", chromaPath);
+
+        // Query the knowledge base to find its actual owner userId (for ChromaDB collection naming)
+        Long ownerUserId = userId;
+        try {
+            KnowledgeBase kb = knowledgeBaseMapper.selectById(request.getKbId());
+            if (kb != null) {
+                ownerUserId = kb.getUserId();
+            }
+        } catch (Exception e) {
+            log.warn("Failed to query KB owner, using request userId: {}", e.getMessage());
+        }
+        scriptRequest.put("userId", ownerUserId);
 
         String result;
         try {
@@ -133,49 +157,29 @@ public class ChatService {
         return chatResponse;
     }
 
+    /**
+     * Execute Python script using file-based communication to avoid stdin/stdout pipe encoding issues on Windows.
+     * Writes request JSON to a temp file, Python reads it and writes output to another temp file.
+     */
     private String executePythonScript(String scriptPath, String requestJson) throws Exception {
         log.info("Executing Python script: {} with request: {}", scriptPath, requestJson);
-        ProcessBuilder pb = new ProcessBuilder("python", scriptPath);
-        pb.redirectErrorStream(false);
+
+        // Write request JSON to temp file (bypass stdin pipe encoding issues on Windows)
+        Path inputFile = Files.createTempFile("chat_input_", ".json");
+        Path outputFile = Files.createTempFile("chat_output_", ".json");
+        inputFile.toFile().deleteOnExit();
+        outputFile.toFile().deleteOnExit();
+
+        Files.write(inputFile, requestJson.getBytes("UTF-8"));
+
+        ProcessBuilder pb = new ProcessBuilder("python", scriptPath, inputFile.toString(), outputFile.toString());
         pb.environment().put("SILICON_FLOW_API_KEY", siliconflowApiKey);
+        pb.environment().put("EMBED_PROVIDER", embedProvider);
+        pb.environment().put("EMBED_API_KEY", embedApiKey);
+        pb.environment().put("EMBED_BASE_URL", embedBaseUrl);
+        pb.environment().put("EMBED_MODEL", embedModel);
 
         Process process = pb.start();
-
-        try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(process.getOutputStream(), "UTF-8"))) {
-            writer.write(requestJson);
-            writer.flush();
-        }
-
-        StringBuilder stdout = new StringBuilder();
-        StringBuilder stderr = new StringBuilder();
-
-        Thread stdoutReader = new Thread(() -> {
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream(), "UTF-8"))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    stdout.append(line).append("\n");
-                }
-            } catch (Exception e) {
-                // ignore
-            }
-        });
-
-        Thread stderrReader = new Thread(() -> {
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getErrorStream(), "UTF-8"))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    stderr.append(line).append("\n");
-                }
-            } catch (Exception e) {
-                // ignore
-            }
-        });
-
-        stdoutReader.start();
-        stderrReader.start();
 
         boolean finished = process.waitFor(120, java.util.concurrent.TimeUnit.SECONDS);
         if (!finished) {
@@ -183,18 +187,15 @@ public class ChatService {
             throw new RuntimeException("Python script timed out after 120 seconds");
         }
 
-        stdoutReader.join(1000);
-        stderrReader.join(1000);
-
-        log.info("Python stdout: {}", stdout.toString());
-        log.info("Python stderr: {}, exitCode: {}", stderr.toString(), process.exitValue());
-
         if (process.exitValue() != 0) {
-            throw new RuntimeException("Python script failed with exit code " + process.exitValue()
-                    + ". stderr: " + stderr.toString());
+            throw new RuntimeException("Python script failed with exit code " + process.exitValue());
         }
 
-        return stdout.toString().trim();
+        // Read output from file (bypass stdout pipe encoding issues on Windows)
+        String result = new String(Files.readAllBytes(outputFile), "UTF-8");
+        log.info("Python script finished, exitCode: 0, output length: {}", result.length());
+
+        return result.trim();
     }
 
     private String findScriptPath() {
@@ -234,5 +235,23 @@ public class ChatService {
             throw new RuntimeException("Access denied");
         }
         return messageMapper.selectBySessionId(sessionId, userId);
+    }
+
+    /**
+     * Delete a chat session and all its messages.
+     * @throws RuntimeException if session not found or not owned by user
+     */
+    public void deleteSession(Long sessionId, Long userId) {
+        ChatSession session = sessionMapper.selectById(sessionId);
+        if (session == null) {
+            throw new RuntimeException("Session not found");
+        }
+        if (!session.getUserId().equals(userId)) {
+            throw new RuntimeException("Access denied");
+        }
+        // Delete messages first (foreign key constraint)
+        chatMessageMapper.deleteBySessionId(sessionId);
+        // Delete session
+        chatSessionMapper.deleteById(sessionId);
     }
 }

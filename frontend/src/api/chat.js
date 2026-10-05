@@ -60,3 +60,16 @@ export async function getFeedback(messageId) {
   const response = await api.get(`/chat/feedback/${messageId}`)
   return response.data
 }
+
+/**
+ * Delete a chat session.
+ * @param {number} sessionId - Session ID
+ * @param {number} userId - User ID
+ * @returns {Promise<Object>} Response with success flag
+ */
+export async function deleteSession(sessionId, userId) {
+  const response = await api.delete(`/chat/session/${sessionId}`, {
+    params: { userId }
+  })
+  return response.data
+}

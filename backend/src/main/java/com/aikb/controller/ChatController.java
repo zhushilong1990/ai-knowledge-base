@@ -103,6 +103,22 @@ public class ChatController {
         return ResponseEntity.ok(feedback);
     }
 
+    @DeleteMapping("/session/{sessionId}")
+    public ResponseEntity<?> deleteSession(@PathVariable Long sessionId,
+                                          @RequestParam Long userId) {
+        try {
+            chatService.deleteSession(sessionId, userId);
+            return ResponseEntity.ok(Collections.singletonMap("success", true));
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("not found") || e.getMessage().contains("Access denied")) {
+                return ResponseEntity.status(403)
+                        .body(Collections.singletonMap("error", e.getMessage()));
+            }
+            return ResponseEntity.status(500)
+                    .body(Collections.singletonMap("error", "Failed to delete session"));
+        }
+    }
+
     private Long extractUserId(Authentication auth, HttpServletRequest httpRequest) {
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
             return 1L;

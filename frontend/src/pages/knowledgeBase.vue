@@ -35,6 +35,9 @@
           </template>
 
           <div v-if="expandedKBId === kb.id" class="documents-section">
+            <div class="back-bar">
+              <el-button :icon="ArrowLeft" @click="collapseKB">返回知识库列表</el-button>
+            </div>
             <el-divider content-position="left">文档列表</el-divider>
             <div v-if="kbDocuments.length === 0" class="empty-docs">
               <el-empty description="该知识库中暂无文档" :image-size="60" />
@@ -89,6 +92,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { ArrowLeft } from '@element-plus/icons-vue'
 import { useKnowledgeBaseStore } from '../stores/knowledgeBase.js'
 import { getDocuments } from '../api/knowledgeBase.js'
 
@@ -118,6 +122,11 @@ async function expandKB(kb) {
       kbDocuments.value = []
     }
   }
+}
+
+function collapseKB() {
+  expandedKBId.value = null
+  kbDocuments.value = []
 }
 
 async function handleCreateKB() {
@@ -207,6 +216,10 @@ function formatFileSize(size) {
 
 .documents-section {
   margin-top: 12px;
+}
+
+.back-bar {
+  margin-bottom: 12px;
 }
 
 .empty-docs {
