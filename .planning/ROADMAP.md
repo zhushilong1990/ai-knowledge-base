@@ -99,9 +99,10 @@
   3. API 端点有基本健康检查和监控
   4. 多端点变体（H5/小程序/App）可从同一代码库构建
   5. 重新索引管道可以刷新陈旧的文档向量
-**计划**：2 plans
-- [ ] 06-01-PLAN.md — 部署准备：健康检查 + 错误处理 + H5 构建配置
-- [ ] 06-02-PLAN.md — 多端点构建 + 重新索引管道
+**计划**：3 plans
+- [x] 06-01-PLAN.md — 部署准备：健康检查 + 错误处理 + H5 构建配置
+- [x] 06-02-PLAN.md — 多端点构建 + 重新索引管道
+- [x] 06-03-PLAN.md — 聊天记录删除 + 详情页返回按钮
 
 ## 进度
 
@@ -112,4 +113,4 @@
 | 3. Chat/QA | 2/2 | Complete | 2026-10-01 |
 | 4. Knowledge Base Management | 1/1 | Complete | 2026-10-01 |
 | 5. History & Feedback | 2/2 | Complete | 2026-10-01 |
-| 6. Maintenance & Polish | 0/? | Not started | - |
+| 6. Maintenance & Polish | 3/3 | Complete | 2026-10-05 |
