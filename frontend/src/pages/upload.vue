@@ -3,7 +3,8 @@
     <el-card class="upload-card">
       <template #header>
         <div class="card-header">
-          <span>上传文档</span>
+          <router-link to="/home"><el-button type="text">🏠 返回首页</el-button></router-link>
+          <span style="flex:1;text-align:center">上传文档</span>
         </div>
       </template>
 
@@ -145,6 +146,11 @@ async function handleUpload() {
 .upload-card {
   width: 500px;
   max-width: 100%;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .upload-area {
   width: 100%;

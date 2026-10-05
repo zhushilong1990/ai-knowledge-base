@@ -3,7 +3,8 @@
     <el-card class="admin-card">
       <template #header>
         <div class="card-header">
-          <span>管理面板</span>
+          <router-link to="/home"><el-button type="text">🏠 返回首页</el-button></router-link>
+          <span style="flex:1;text-align:center">管理面板</span>
         </div>
       </template>
 
@@ -129,6 +130,9 @@ onMounted(() => {
 }
 
 .card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: bold;
   font-size: 16px;
 }

@@ -4,8 +4,9 @@
       <!-- 侧边栏：会话列表 -->
       <el-aside width="250px" class="chat-sidebar">
         <div class="sidebar-header">
-          <span>聊天记录</span>
-          <el-button type="primary" size="small" @click="startNewSession">新建</el-button>
+          <router-link to="/home"><el-button type="text" size="small">🏠</el-button></router-link>
+          <span style="flex:1;text-align:center;font-weight:bold">聊天记录</span>
+          <el-button type="primary" size="small" @click="startNewSession">+</el-button>
         </div>
         <el-scrollbar>
           <div class="session-list">

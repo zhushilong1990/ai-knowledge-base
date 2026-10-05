@@ -3,7 +3,8 @@
     <el-card class="kb-card">
       <template #header>
         <div class="card-header">
-          <span>知识库管理</span>
+          <router-link to="/home"><el-button type="text">🏠 返回首页</el-button></router-link>
+          <span style="flex:1;text-align:center">知识库管理</span>
           <el-button type="primary" @click="showCreateDialog = true">创建知识库</el-button>
         </div>
       </template>
