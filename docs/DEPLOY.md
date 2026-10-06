@@ -73,17 +73,26 @@ sudo nginx -t && sudo nginx -s reload
 
 ## 一键部署（本地 PowerShell 执行）
 
+**第一步：本地上传后端 JAR 并重启后端**
 ```powershell
-# 1. 打包上传后端
-cd D:\code\ai-knowledge-base\backend; mvn clean package -DskipTests; scp target/ai-knowledge-base-1.0.0.jar ubuntu@123.207.69.23:/opt/aikb/
+# 打包并上传后端
+cd D:\code\ai-knowledge-base\backend
+mvn clean package -DskipTests
+scp target/ai-knowledge-base-1.0.0.jar ubuntu@123.207.69.23:/opt/aikb/
 
-# 2. 服务器重启后端
+# 服务器重启后端
 ssh ubuntu@123.207.69.23 "pkill -f ai-knowledge-base || true; cd /opt/aikb; nohup java -jar ai-knowledge-base-1.0.0.jar --server.port=8081 > app.log 2>&1 &"
+```
 
-# 3. 打包上传前端
-cd D:\code\ai-knowledge-base\frontend; npm install; npm run build; scp -r dist/* ubuntu@123.207.69.23:/var/www/aikb/dist/
+**第二步：本地上传前端并重载 Nginx**
+```powershell
+# 打包并上传前端
+cd D:\code\ai-knowledge-base\frontend
+npm install
+npm run build
+scp -r dist/* ubuntu@123.207.69.23:/var/www/aikb/dist/
 
-# 4. 重载 Nginx
+# 服务器重载 Nginx
 ssh ubuntu@123.207.69.23 "sudo nginx -t && sudo nginx -s reload"
 ```
 
