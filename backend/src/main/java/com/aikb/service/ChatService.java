@@ -165,6 +165,12 @@ public class ChatService {
     private String executePythonScript(String scriptPath, String requestJson) throws Exception {
         log.info("Executing Python script: {} with request: {}", scriptPath, requestJson);
 
+        String pythonCommand = "python3";
+        String pythonHome = System.getenv("PYTHON_HOME");
+        if (pythonHome != null && !pythonHome.isEmpty()) {
+            pythonCommand = pythonHome + "/python";
+        }
+
         Path inputFile = Files.createTempFile("chat_input_", ".json");
         Path outputFile = Files.createTempFile("chat_output_", ".json");
         inputFile.toFile().deleteOnExit();
@@ -172,7 +178,7 @@ public class ChatService {
 
         Files.write(inputFile, requestJson.getBytes("UTF-8"));
 
-        ProcessBuilder pb = new ProcessBuilder("python", scriptPath, inputFile.toString(), outputFile.toString());
+        ProcessBuilder pb = new ProcessBuilder(pythonCommand, scriptPath, inputFile.toString(), outputFile.toString());
         pb.environment().put("LLM_API_KEY", llmApiKey);
         pb.environment().put("LLM_BASE_URL", llmBaseUrl);
         pb.environment().put("LLM_MODEL", llmModel);
