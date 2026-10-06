@@ -19,7 +19,7 @@ export const useChatStore = defineStore('chat', () => {
         currentSessionId.value = result.sessionId
         // Add to sessions list if not already there
         if (!sessions.value.find(s => s.id === result.sessionId)) {
-          sessions.value.unshift({ id: result.sessionId, title: question.substring(0, 30) })
+          sessions.value.unshift({ id: result.sessionId, title: question.substring(0, 30), kbId: kbId })
         }
       }
 
@@ -37,6 +37,7 @@ export const useChatStore = defineStore('chat', () => {
 
       // Add assistant message with sources
       messages.value[result.sessionId].push({
+        id: result.messageId,
         role: 'assistant',
         content: result.answer,
         sources: result.sources,

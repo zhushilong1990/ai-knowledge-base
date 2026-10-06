@@ -158,6 +158,7 @@ public class ChatService {
                 .createdAt(LocalDateTime.now())
                 .build();
         messageMapper.insert(assistantMessage);
+        chatResponse.setMessageId(assistantMessage.getId());
 
         return chatResponse;
     }

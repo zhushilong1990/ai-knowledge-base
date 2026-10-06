@@ -12,6 +12,7 @@ public class ChatResponse {
     private String answer;
     private List<Source> sources;
     private Long sessionId;
+    private Long messageId;  // assistant message ID for feedback
 
     @Data
     public static class Source {
