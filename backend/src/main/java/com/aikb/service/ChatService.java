@@ -169,6 +169,9 @@ public class ChatService {
         String pythonHome = System.getenv("PYTHON_HOME");
         if (pythonHome != null && !pythonHome.isEmpty()) {
             pythonCommand = pythonHome + "/python";
+        } else {
+            // Windows python 命令位于 PATH，优先使用；Linux 服务器通常也有 python -> python3 的软链接
+            pythonCommand = "python";
         }
 
         Path inputFile = Files.createTempFile("chat_input_", ".json");
