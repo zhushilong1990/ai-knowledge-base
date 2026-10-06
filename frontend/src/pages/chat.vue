@@ -40,6 +40,28 @@
           <el-button :icon="ArrowLeft" @click="goBack">返回会话列表</el-button>
         </div>
 
+        <!-- 移动端：顶部栏（首页按钮 + 会话选择器） -->
+        <div class="mobile-header">
+          <router-link to="/home">
+            <el-button :icon="HomeFilled" circle title="返回首页" />
+          </router-link>
+          <el-select
+            v-model="currentSessionId"
+            placeholder="选择会话"
+            size="default"
+            class="mobile-session-select"
+            clearable
+            @clear="goBack"
+          >
+            <el-option
+              v-for="session in chatStore.sessions"
+              :key="session.id"
+              :label="session.title"
+              :value="session.id"
+            />
+          </el-select>
+        </div>
+
         <!-- 知识库选择器 -->
         <div class="kb-selector">
           <span class="kb-label">知识库：</span>
@@ -128,7 +150,7 @@
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Loading, Delete, ArrowLeft } from '@element-plus/icons-vue'
+import { Loading, Delete, ArrowLeft, HomeFilled } from '@element-plus/icons-vue'
 import { useChatStore } from '../stores/chat.js'
 import { useKnowledgeBaseStore } from '../stores/knowledgeBase.js'
 
@@ -137,6 +159,17 @@ const kbStore = useKnowledgeBaseStore()
 const scrollbarRef = ref(null)
 const question = ref('')
 const selectedKbId = ref(null)
+
+const currentSessionId = computed({
+  get: () => chatStore.currentSessionId,
+  set: (val) => {
+    if (val) {
+      selectSession(val)
+    } else {
+      goBack()
+    }
+  }
+})
 
 const currentMessages = computed(() => {
   if (!chatStore.currentSessionId) return []
@@ -243,6 +276,36 @@ onMounted(() => {
 .chat-sidebar {
   background: #f5f5f5;
   border-right: 1px solid #e0e0e0;
+}
+
+/* 手机适配：隐藏侧边栏 */
+@media (max-width: 768px) {
+  .chat-sidebar {
+    display: none;
+  }
+  .chat-main {
+    width: 100%;
+  }
+}
+
+/* 移动端顶部栏 */
+.mobile-header {
+  display: none;
+  padding: 8px 12px;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.mobile-session-select {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .mobile-header {
+    display: flex;
+  }
 }
 
 .sidebar-header {
@@ -360,6 +423,14 @@ onMounted(() => {
   padding: 12px 16px;
   border-radius: 8px;
   word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 手机适配：气泡占满宽度 */
+@media (max-width: 768px) {
+  .message-bubble {
+    max-width: 85%;
+  }
 }
 
 .message-item.user .message-bubble {
@@ -403,9 +474,8 @@ onMounted(() => {
 
 .source-text {
   flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .source-score {
@@ -437,5 +507,19 @@ onMounted(() => {
 
 .input-area .el-textarea {
   flex: 1;
+}
+
+/* 手机适配：输入区域垂直堆叠 */
+@media (max-width: 768px) {
+  .input-area {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .input-area .el-button {
+    width: 100%;
+  }
+  .kb-selector {
+    flex-wrap: wrap;
+  }
 }
 </style>
